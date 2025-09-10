@@ -3,7 +3,7 @@ package com.example.agent.translate;
 import com.example.agent.bootstrap.Improver;
 import com.example.agent.knowledge.RuleStore;
 import com.example.agent.model.ir.IR;
-import com.example.agent.providers.GigaChatOpenAIClient;
+import com.example.agent.providers.LlmProvider;
 import com.example.agent.rag.SimpleIndexer;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class TranslatorAgent {
 
-    private final GigaChatOpenAIClient llm;
+    private final LlmProvider llm;
     private final SimpleIndexer indexer;
     private final RuleStore ruleStore;
     private final DynamicDialectParser parser;
@@ -20,7 +20,7 @@ public class TranslatorAgent {
     private final JavaVerifier verifier = new JavaVerifier();
     private final Improver improver;
 
-    public TranslatorAgent(GigaChatOpenAIClient llm, SimpleIndexer indexer, RuleStore ruleStore) {
+    public TranslatorAgent(LlmProvider llm, SimpleIndexer indexer, RuleStore ruleStore) {
         this.llm = llm;
         this.indexer = indexer;
         this.ruleStore = ruleStore;

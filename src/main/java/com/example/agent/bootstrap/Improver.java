@@ -2,7 +2,7 @@ package com.example.agent.bootstrap;
 
 import com.example.agent.knowledge.Rule;
 import com.example.agent.knowledge.RuleStore;
-import com.example.agent.providers.GigaChatOpenAIClient;
+import com.example.agent.providers.LlmProvider;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class Improver {
 
-    private final GigaChatOpenAIClient llm;
+    private final LlmProvider llm;
     private final RuleStore store;
 
-    public Improver(GigaChatOpenAIClient llm, RuleStore store) {
+    public Improver(LlmProvider llm, RuleStore store) {
         this.llm = llm;
         this.store = store;
     }

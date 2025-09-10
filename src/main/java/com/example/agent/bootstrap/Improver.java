@@ -33,19 +33,19 @@ public class Improver {
             line = line.trim();
             if (line.isEmpty()) continue;
             try {
-                String id = extract(line, ""id"\s*:\s*"(.*?)"");
-                String irType = extract(line, ""irType"\s*:\s*"(.*?)"");
-                String regex = extract(line, ""regex"\s*:\s*"(.*?)"");
-                String fields = extract(line, ""fields"\s*:\s*\[(.*?)\]");
-                String listFields = extract(line, ""listFields"\s*:\s*\[(.*?)\]");
-                String tpl = extract(line, ""javaTemplate"\s*:\s*"(.*?)"");
+                String id = extract(line, "\"id\"\\s*:\\s*\"(.*?)\"");
+                String irType = extract(line, "\"irType\"\\s*:\\s*\"(.*?)\"");
+                String regex = extract(line, "\"regex\"\\s*:\\s*\"(.*?)\"");
+                String fields = extract(line, "\"fields\"\\s*:\\s*\\[(.*?)\\]");
+                String listFields = extract(line, "\"listFields\"\\s*:\\s*\\[(.*?)\\]");
+                String tpl = extract(line, "\"javaTemplate\"\\s*:\\s*\"(.*?)\"");
                 if (id == null || irType == null || regex == null || fields == null) continue;
                 var fs = new java.util.ArrayList<String>();
-                var m1 = java.util.regex.Pattern.compile(""(.*?)"").matcher(fields);
+                var m1 = java.util.regex.Pattern.compile("\"(.*?)\"").matcher(fields);
                 while (m1.find()) fs.add(m1.group(1));
                 var lfs = new java.util.ArrayList<String>();
                 if (listFields != null) {
-                    var m2 = java.util.regex.Pattern.compile(""(.*?)"").matcher(listFields);
+                    var m2 = java.util.regex.Pattern.compile("\"(.*?)\"").matcher(listFields);
                     while (m2.find()) lfs.add(m2.group(1));
                 }
                 store.addOrUpdateRule(new Rule(id, irType, regex, fs.toArray(new String[0]), lfs.toArray(new String[0]), tpl));

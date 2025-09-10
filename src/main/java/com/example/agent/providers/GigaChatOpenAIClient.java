@@ -37,9 +37,9 @@ public class GigaChatOpenAIClient implements LlmProvider {
 
     private OkHttpClient buildClient() {
         try {
-            String caFile = System.getProperty("GIGACHAT_CA_FILE");
+            String caFile = System.getProperty("GIGACHAT_TRUSTED_CA_FILE");
             if (caFile == null || caFile.isBlank()) {
-                throw new IllegalStateException("GIGACHAT_CA_FILE system property is not set");
+                throw new IllegalStateException("GIGACHAT_TRUSTED_CA_FILE system property is not set");
             }
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             try (InputStream caInput = Files.newInputStream(Paths.get(caFile))) {

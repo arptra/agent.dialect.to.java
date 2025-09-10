@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /** Extremely simple in-memory TF-IDF index for code snippets. */
 public class SimpleIndexer {
-    private static final Pattern TOKEN = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*|\S");
+    private static final Pattern TOKEN = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*|\\S");
 
     private final List<String> docs = new ArrayList<>();
     private final List<Map<String, Integer>> termFreq = new ArrayList<>();

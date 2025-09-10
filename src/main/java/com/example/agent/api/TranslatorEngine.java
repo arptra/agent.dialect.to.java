@@ -29,7 +29,7 @@ public class TranslatorEngine implements TranslatorApi {
     public static TranslatorEngine fromEnv(Path runtimeDir) throws IOException {
         var cfg = Config.fromEnv();
         LlmProvider provider;
-        if ("cert".equalsIgnoreCase(cfg.provider)) {
+        if (!cfg.certPath.isBlank() && !cfg.keyPath.isBlank() && !cfg.caPath.isBlank()) {
             try {
                 provider = new GigaChatCertificateClient(cfg.apiBase, cfg.model,
                         Path.of(cfg.certPath), Path.of(cfg.keyPath), Path.of(cfg.caPath));

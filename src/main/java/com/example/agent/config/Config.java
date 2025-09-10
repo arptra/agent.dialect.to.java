@@ -21,18 +21,20 @@ public class Config {
     }
 
     public static Config fromEnv() {
-        String base = getenvOr("GIGACHAT_API_BASE", "http://localhost:8000");
-        String key  = getenvOr("GIGACHAT_API_KEY", "");
-        String model= getenvOr("GIGACHAT_MODEL", "gigachat");
-        String provider = getenvOr("LLM_PROVIDER", "openai");
-        String cert = getenvOr("GIGACHAT_CERT_FILE", "");
-        String kpath = getenvOr("GIGACHAT_KEY_FILE", "");
-        String ca   = getenvOr("GIGACHAT_CA_FILE", "");
+        String base = propOrEnv("GIGACHAT_API_BASE", "http://localhost:8000");
+        String key  = propOrEnv("GIGACHAT_API_KEY", "");
+        String model= propOrEnv("GIGACHAT_MODEL", "gigachat");
+        String provider = propOrEnv("LLM_PROVIDER", "openai");
+        String cert = propOrEnv("GIGACHAT_CERT_FILE", "");
+        String kpath = propOrEnv("GIGACHAT_KEY_FILE", "");
+        String ca   = propOrEnv("GIGACHAT_CA_FILE", "");
         return new Config(base, key, model, provider, cert, kpath, ca);
     }
 
-    private static String getenvOr(String k, String def) {
-        String v = System.getenv(k);
+    private static String propOrEnv(String k, String def) {
+        String v = System.getProperty(k);
+        if (v != null && !v.isBlank()) return v;
+        v = System.getenv(k);
         return v == null || v.isBlank() ? def : v;
     }
 }

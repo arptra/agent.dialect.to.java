@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-public class GigaChatOpenAIClient {
+public class GigaChatOpenAIClient implements LlmProvider {
 
     private final String baseUrl; // e.g. http://localhost:8000
     private final String apiKey;
@@ -26,6 +26,7 @@ public class GigaChatOpenAIClient {
                 .build();
     }
 
+    @Override
     public String chat(List<Map<String, String>> messages, double temperature) throws IOException {
         String url = baseUrl + "/v1/chat/completions";
         var payload = Map.of(

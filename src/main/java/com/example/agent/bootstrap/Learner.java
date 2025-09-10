@@ -2,7 +2,7 @@ package com.example.agent.bootstrap;
 
 import com.example.agent.knowledge.Rule;
 import com.example.agent.knowledge.RuleStore;
-import com.example.agent.providers.GigaChatOpenAIClient;
+import com.example.agent.providers.LlmProvider;
 import com.example.agent.rag.SimpleIndexer;
 
 import java.io.IOException;
@@ -13,11 +13,11 @@ import java.util.regex.Pattern;
 
 public class Learner {
 
-    private final GigaChatOpenAIClient llm;
+    private final LlmProvider llm;
     private final RuleStore store;
     private final SimpleIndexer indexer;
 
-    public Learner(GigaChatOpenAIClient llm, RuleStore store, SimpleIndexer indexer) {
+    public Learner(LlmProvider llm, RuleStore store, SimpleIndexer indexer) {
         this.llm = llm;
         this.store = store;
         this.indexer = indexer;

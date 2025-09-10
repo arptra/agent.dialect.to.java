@@ -40,7 +40,11 @@ public class IRToJava {
     }
 
     private String sanitize(String s) {
-        return s.replaceAll(":=|<>", "!=").replaceAll(" and ", " && ").replaceAll(" or ", " || ");
+        return s
+                .replace(":=", "=")
+                .replace("<>", "!=")
+                .replace(" and ", " && ")
+                .replace(" or ", " || ");
     }
 
     private String escape(String s) {

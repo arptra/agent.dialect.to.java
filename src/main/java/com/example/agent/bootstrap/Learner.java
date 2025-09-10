@@ -55,19 +55,19 @@ public class Learner {
     }
 
     private Rule parseRule(String jsonLine) {
-        String id = extract(jsonLine, ""id"\s*:\s*"(.*?)"");
-        String irType = extract(jsonLine, ""irType"\s*:\s*"(.*?)"");
-        String regex = extract(jsonLine, ""regex"\s*:\s*"(.*?)"");
-        String fields = extract(jsonLine, ""fields"\s*:\s*\[(.*?)\]");
-        String listFields = extract(jsonLine, ""listFields"\s*:\s*\[(.*?)\]");
-        String tpl = extract(jsonLine, ""javaTemplate"\s*:\s*"(.*?)"");
+        String id = extract(jsonLine, "\"id\"\\s*:\\s*\"(.*?)\"");
+        String irType = extract(jsonLine, "\"irType\"\\s*:\\s*\"(.*?)\"");
+        String regex = extract(jsonLine, "\"regex\"\\s*:\\s*\"(.*?)\"");
+        String fields = extract(jsonLine, "\"fields\"\\s*:\\s*\\[(.*?)\\]");
+        String listFields = extract(jsonLine, "\"listFields\"\\s*:\\s*\\[(.*?)\\]");
+        String tpl = extract(jsonLine, "\"javaTemplate\"\\s*:\\s*\"(.*?)\"");
         if (id == null || irType == null || regex == null || fields == null) return null;
         java.util.List<String> fs = new java.util.ArrayList<>();
-        var m1 = java.util.regex.Pattern.compile(""(.*?)"").matcher(fields);
+        var m1 = java.util.regex.Pattern.compile("\"(.*?)\"").matcher(fields);
         while (m1.find()) fs.add(m1.group(1));
         java.util.List<String> lfs = new java.util.ArrayList<>();
         if (listFields != null) {
-            var m2 = java.util.regex.Pattern.compile(""(.*?)"").matcher(listFields);
+            var m2 = java.util.regex.Pattern.compile("\"(.*?)\"").matcher(listFields);
             while (m2.find()) lfs.add(m2.group(1));
         }
         return new Rule(id, irType, regex, fs.toArray(new String[0]), lfs.toArray(new String[0]), tpl);

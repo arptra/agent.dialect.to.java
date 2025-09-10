@@ -1,12 +1,11 @@
 package com.example.agent.api;
 
-import com.example.agent.bootstrap.Learner;
+import com.example.agent.bootstrap.LearnerV2;
 import com.example.agent.config.Config;
 import com.example.agent.knowledge.RuleStore;
-import com.example.agent.providers.GigaChatCertificateClient;
 import com.example.agent.providers.GigaChatOpenAIClient;
-import com.example.agent.providers.LlmProvider;
 import com.example.agent.rag.SimpleIndexer;
+import com.example.agent.rules.RuleLoaderV2;
 import com.example.agent.translate.TranslatorAgent;
 
 import java.io.IOException;
@@ -15,53 +14,43 @@ import java.util.List;
 import java.util.Objects;
 
 public class TranslatorEngine implements TranslatorApi {
-
-    private final LlmProvider llm;
-    private final RuleStore rules;
+    private final GigaChatOpenAIClient llm;
+    private final RuleStore processed;
     private final SimpleIndexer indexer;
+    private final RuleLoaderV2 ruleRepo;
 
-    public TranslatorEngine(LlmProvider llm, Path runtimeDir) throws IOException {
-        this.llm = Objects.requireNonNull(llm);
-        this.rules = new RuleStore(Objects.requireNonNull(runtimeDir));
+    public TranslatorEngine(String apiBase, String apiKey, String model, Path runtimeDir) throws IOException {
+        this.llm = new GigaChatOpenAIClient(Objects.requireNonNull(apiBase), Objects.requireNonNull(apiKey), Objects.requireNonNull(model));
+        this.processed = new RuleStore(Objects.requireNonNull(runtimeDir));
         this.indexer = new SimpleIndexer();
+        this.ruleRepo = new RuleLoaderV2(runtimeDir);
     }
 
     public static TranslatorEngine fromEnv(Path runtimeDir) throws IOException {
         var cfg = Config.fromEnv();
-        LlmProvider provider;
-        if (!cfg.certPath.isBlank() && !cfg.keyPath.isBlank() && !cfg.caPath.isBlank()) {
-            try {
-                provider = new GigaChatCertificateClient(cfg.apiBase, cfg.model,
-                        Path.of(cfg.certPath), Path.of(cfg.keyPath), Path.of(cfg.caPath));
-            } catch (Exception e) {
-                throw new IOException("Failed to initialize certificate client", e);
-            }
-        } else {
-            provider = new GigaChatOpenAIClient(cfg.apiBase, cfg.apiKey, cfg.model);
-        }
-        return new TranslatorEngine(provider, runtimeDir);
+        return new TranslatorEngine(cfg.apiBase, cfg.apiKey, cfg.model, runtimeDir);
     }
 
     @Override
     public void learn(Path repoRoot, List<String> includeExts) throws IOException {
-        var learner = new Learner(llm, rules, indexer);
-        learner.learnFromRepo(repoRoot, includeExts);
-        rules.save();
+        new LearnerV2(llm, processed, ruleRepo, indexer).learnFromRepo(repoRoot, includeExts);
     }
 
     @Override
     public String translate(String dialectSource) throws IOException {
-        var agent = new TranslatorAgent(llm, indexer, rules);
+        var agent = new TranslatorAgent(llm, indexer, processed, ruleRepo);
         String out = agent.translate(dialectSource);
-        rules.save();
+        processed.save();
+        ruleRepo.save();
         return out;
     }
 
     @Override
     public String fix(String dialectSource, String currentJava, String feedback) throws IOException {
-        var agent = new TranslatorAgent(llm, indexer, rules);
+        var agent = new TranslatorAgent(llm, indexer, processed, ruleRepo);
         String out = agent.applyUserFix(dialectSource, currentJava, feedback);
-        rules.save();
+        processed.save();
+        ruleRepo.save();
         return out;
     }
 }

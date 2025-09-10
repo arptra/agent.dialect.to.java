@@ -9,8 +9,10 @@ public class JavaVerifier {
     public static class Result {
         public final boolean ok;
         public final String diagnostics;
+
         public Result(boolean ok, String diagnostics) {
-            this.ok = ok; this.diagnostics = diagnostics;
+            this.ok = ok;
+            this.diagnostics = diagnostics;
         }
     }
 

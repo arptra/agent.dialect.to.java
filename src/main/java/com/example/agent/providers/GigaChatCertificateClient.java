@@ -75,8 +75,8 @@ public class GigaChatCertificateClient implements LlmProvider {
 
     private PrivateKey readKey(Path path) throws IOException, GeneralSecurityException {
         String pem = Files.readString(path);
-        pem = pem.replace("-----BEGIN PRIVATE KEY-----", "")
-                 .replace("-----END PRIVATE KEY-----", "")
+        pem = pem.replaceAll("-----BEGIN [^-]+-----", "")
+                 .replaceAll("-----END [^-]+-----", "")
                  .replaceAll("\\s", "");
         byte[] bytes = Base64.getDecoder().decode(pem);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);

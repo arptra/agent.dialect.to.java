@@ -60,7 +60,6 @@ public class TranslatorEngine implements TranslatorApi {
         var agent = new TranslatorAgent(llm, indexer, processed, ruleRepo);
         String out = agent.translate(dialectSource);
         processed.save();
-        ruleRepo.save();
         return out;
     }
 
@@ -69,7 +68,6 @@ public class TranslatorEngine implements TranslatorApi {
         var agent = new TranslatorAgent(llm, indexer, processed, ruleRepo);
         String out = agent.applyUserFix(dialectSource, currentJava, feedback);
         processed.save();
-        ruleRepo.save();
         return out;
     }
 }

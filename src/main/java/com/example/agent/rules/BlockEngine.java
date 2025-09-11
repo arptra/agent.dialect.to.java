@@ -28,7 +28,9 @@ public final class BlockEngine {
     var stack = new ArrayDeque<Frame>();
     List<IR.Node> current = ir.nodes;
 
-    for (String t : tokens) {
+    Deque<String> queue = new ArrayDeque<>(tokens);
+    while (!queue.isEmpty()) {
+      String t = queue.removeFirst();
       boolean handled = false;
 
       // CLOSE
@@ -43,15 +45,11 @@ public final class BlockEngine {
           // MIDDLE
           for (Pattern mid : top.b.middle) {
             Matcher mm = mid.matcher(t);
-            if (mm.matches()) {
-              String ex = safe(mm,1);
-              String rest = safe(mm,2);
-              top.switchToElseLike(ex);
+            if (mm.lookingAt()) {
+              top.switchToElseLike();
               current = top.current();
-              if (rest != null && !rest.isBlank()) {
-                IR.Node midStmt = stmt.match(rest.trim());
-                current.add(midStmt);
-              }
+              String rest = t.substring(mm.end()).trim();
+              if (!rest.isEmpty()) queue.addFirst(rest);
               handled = true; break;
             }
           }
@@ -63,10 +61,12 @@ public final class BlockEngine {
       for (CompBlock b : blocks) {
         if (b.open != null) {
           Matcher m = b.open.matcher(t);
-          if (m.matches()) {
+          if (m.lookingAt()) {
             Frame f = new Frame(b, instantiateIR(b.r, m));
             stack.push(f);
             current = f.current();
+            String rest = t.substring(m.end()).trim();
+            if (!rest.isEmpty()) queue.addFirst(rest);
             handled = true; break;
           }
         }
@@ -88,9 +88,8 @@ public final class BlockEngine {
     boolean elseLike = false;
     final List<IR.Node> thenBody = new ArrayList<>();
     final List<IR.Node> elseBody = new ArrayList<>();
-    String midValue;
     Frame(CompBlock b, IR.Node node){ this.b=b; this.node=node; }
-    void switchToElseLike(String mid){ this.elseLike = true; this.midValue = mid; }
+    void switchToElseLike(){ this.elseLike = true; }
     List<IR.Node> current(){ return elseLike ? elseBody : thenBody; }
     IR.Node finalizeNode() {
       try {
@@ -98,9 +97,6 @@ public final class BlockEngine {
         try { var thenF = cls.getField("thenBody"); thenF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
         try { var elseF = cls.getField("elseBody"); elseF.set(node, elseBody); } catch (NoSuchFieldException ignore){}
         try { var bodyF = cls.getField("body"); bodyF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
-        try { var tryF = cls.getField("tryBody"); tryF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
-        try { var catchF = cls.getField("catchBody"); catchF.set(node, elseBody); } catch (NoSuchFieldException ignore){}
-        try { var exF = cls.getField("exceptionName"); exF.set(node, midValue); } catch (NoSuchFieldException ignore){}
       } catch (Throwable ignored) {}
       return node;
     }

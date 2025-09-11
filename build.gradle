@@ -33,7 +33,7 @@ application {
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     def props = ['GIGACHAT_API_BASE','GIGACHAT_API_KEY','GIGACHAT_MODEL','LLM_PROVIDER',
-                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_TRUSTED_CA_FILE']
+                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_CA_FILE']
     props.each { p ->
         if (project.hasProperty(p)) {
             systemProperty p, project.property(p)
@@ -43,7 +43,7 @@ tasks.withType(Test).configureEach {
 
 tasks.withType(JavaExec).configureEach {
     def props = ['GIGACHAT_API_BASE','GIGACHAT_API_KEY','GIGACHAT_MODEL','LLM_PROVIDER',
-                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_TRUSTED_CA_FILE']
+                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_CA_FILE']
     props.each { p ->
         if (project.hasProperty(p)) {
             systemProperty p, project.property(p)

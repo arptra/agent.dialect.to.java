@@ -27,7 +27,7 @@ public class Config {
         String provider = propOrEnv("LLM_PROVIDER", "openai");
         String cert = propOrEnv("GIGACHAT_CERT_FILE", "");
         String kpath = propOrEnv("GIGACHAT_KEY_FILE", "");
-        String ca   = propOrEnv("GIGACHAT_TRUSTED_CA_FILE", "");
+        String ca   = propOrEnv("GIGACHAT_CA_FILE", "");
         return new Config(base, key, model, provider, cert, kpath, ca);
     }
 

@@ -12,6 +12,10 @@
 export GIGACHAT_API_BASE=http://localhost:8000
 export GIGACHAT_API_KEY=YOUR_KEY
 export GIGACHAT_MODEL=gigachat
+# optional mTLS auth
+export GIGACHAT_CERT_FILE=
+export GIGACHAT_KEY_FILE=
+export GIGACHAT_CA_FILE=
 ```
 
 ## API (встраиваемый)

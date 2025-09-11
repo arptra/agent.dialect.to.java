@@ -6,7 +6,7 @@ import java.util.List;
 public class IR {
     public final List<Node> nodes = new ArrayList<>();
 
-    public sealed interface Node permits Assign, Call, If, Loop, Decl, UnknownNode {}
+    public sealed interface Node permits Assign, Call, If, Loop, Decl, Block, UnknownNode {}
 
     public static final class Assign implements Node {
         public final String name;
@@ -33,6 +33,11 @@ public class IR {
         public final String header;
         public final List<Node> body = new ArrayList<>();
         public Loop(String header) { this.header = header; }
+    }
+
+    public static final class Block implements Node {
+        public List<Node> body = new ArrayList<>();
+        public Block() {}
     }
 
     public static final class Decl implements Node {

@@ -33,6 +33,15 @@ public class IRToJava {
         if (n instanceof IR.Loop l) {
             return "// loop " + l.header + "\n    /* TODO convert loop body */";
         }
+        if (n instanceof IR.Block b) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\n");
+            for (IR.Node c : b.body) {
+                sb.append("        ").append(genStmt(c)).append("\n");
+            }
+            sb.append("    }");
+            return sb.toString();
+        }
         if (n instanceof IR.UnknownNode u) {
             return "/* UNKNOWN: " + escape(u.raw) + " */";
         }

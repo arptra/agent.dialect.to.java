@@ -34,53 +34,57 @@ public class LearnerV2 {
 
         if (processedCache.isProcessed(root, p)) continue;
 
-        Log.info("[LEARN] reading file " + p);
-        String text = Files.readString(p);
-        indexer.addDocument(text);
-        String sample = sample(text, 1500);
+        try {
+          Log.info("[LEARN] reading file " + p);
+          String text = Files.readString(p);
+          indexer.addDocument(text);
+          String sample = sample(text, 1500);
 
-        // ----- First attempt: strict schema + examples
-        String sys = strictSystemPrompt();
-        String user = strictUserPrompt(sample);
-        var msgs = List.of(
-            Map.of("role","system","content", sys),
-            Map.of("role","user","content", user)
-        );
-        Log.info("[LEARN] chat request: " + msgs);
-        String raw = llm.chat(msgs, 0.0);
-        Log.info("[LEARN] chat response: " + raw);
-
-        List<RuleV2> rules = RuleJsonlCoercer.parse(raw);
-
-        // ----- If nothing parsed, retry with correction and echo of invalid output
-        if (rules.isEmpty()) {
-          String retryUser = correctionPrompt(sample, raw);
-          var retryMsgs = List.of(
+          // ----- First attempt: strict schema + examples
+          String sys = strictSystemPrompt();
+          String user = strictUserPrompt(sample);
+          var msgs = List.of(
               Map.of("role","system","content", sys),
-              Map.of("role","user","content", retryUser)
+              Map.of("role","user","content", user)
           );
-          Log.info("[LEARN] retry chat request: " + retryMsgs);
-          String raw2 = llm.chat(retryMsgs, 0.0);
-          Log.info("[LEARN] retry chat response: " + raw2);
-          rules = RuleJsonlCoercer.parse(raw2);
+          Log.info("[LEARN] chat request: " + msgs);
+          String raw = llm.chat(msgs, 0.0);
+          Log.info("[LEARN] chat response: " + raw);
 
-          // dump if still empty
+          List<RuleV2> rules = RuleJsonlCoercer.parse(raw);
+
+          // ----- If nothing parsed, retry with correction and echo of invalid output
           if (rules.isEmpty()) {
-            Path dbg = Paths.get("runtime").resolve("llm_dbg");
-            Files.createDirectories(dbg);
-            String ts = java.time.LocalDateTime.now().toString().replace(":","-");
-            Files.writeString(dbg.resolve("empty_retry_"+ts+".txt"), raw + "\n----\n" + raw2);
-            System.err.println("[LEARN] 0 rules parsed, dump saved to runtime/llm_dbg");
-          }
-        }
+            String retryUser = correctionPrompt(sample, raw);
+            var retryMsgs = List.of(
+                Map.of("role","system","content", sys),
+                Map.of("role","user","content", retryUser)
+            );
+            Log.info("[LEARN] retry chat request: " + retryMsgs);
+            String raw2 = llm.chat(retryMsgs, 0.0);
+            Log.info("[LEARN] retry chat response: " + raw2);
+            rules = RuleJsonlCoercer.parse(raw2);
 
-        Log.info("[LEARN] parsed rules count=" + rules.size());
-        for (RuleV2 r : rules) {
-          Log.info("[LEARN] rule: " + r);
-          repo.addOrMerge(r);
+            // dump if still empty
+            if (rules.isEmpty()) {
+              Path dbg = Paths.get("runtime").resolve("llm_dbg");
+              Files.createDirectories(dbg);
+              String ts = java.time.LocalDateTime.now().toString().replace(":","-");
+              Files.writeString(dbg.resolve("empty_retry_"+ts+".txt"), raw + "\n----\n" + raw2);
+              System.err.println("[LEARN] 0 rules parsed, dump saved to runtime/llm_dbg");
+            }
+          }
+
+          Log.info("[LEARN] parsed rules count=" + rules.size());
+          for (RuleV2 r : rules) {
+            Log.info("[LEARN] rule: " + r);
+            repo.addOrMerge(r);
+          }
+          added += rules.size();
+          processedCache.markProcessed(root, p);
+        } catch (Exception e) {
+          Log.error("[LEARN] failed to process file " + p, e);
         }
-        added += rules.size();
-        processedCache.markProcessed(root, p);
       }
     }
 

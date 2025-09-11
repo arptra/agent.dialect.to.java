@@ -13,5 +13,20 @@ public final class Log {
             System.out.println(msg);
         }
     }
+
+    /** Logs message and optional stack trace to stderr when logging is enabled. */
+    public static void error(String msg, Throwable t) {
+        if (ENABLED) {
+            System.err.println(msg);
+            if (t != null) {
+                t.printStackTrace(System.err);
+            }
+        }
+    }
+
+    /** Logs message to stderr when logging is enabled. */
+    public static void error(String msg) {
+        error(msg, null);
+    }
 }
 

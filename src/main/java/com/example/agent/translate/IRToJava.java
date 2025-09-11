@@ -3,8 +3,10 @@ package com.example.agent.translate;
 import com.example.agent.model.ir.IR;
 
 public class IRToJava {
+    private boolean needMsg;
 
     public String generate(IR ir, String className) {
+        needMsg = false;
         StringBuilder sb = new StringBuilder();
         sb.append("public class ").append(className).append(" {\n");
         sb.append("  public static void main(String[] args) {\n");
@@ -12,6 +14,11 @@ public class IRToJava {
             sb.append("    ").append(genStmt(n)).append("\n");
         }
         sb.append("  }\n");
+        if (needMsg) {
+            sb.append("  private static void msg(String text) {\n");
+            sb.append("    System.out.println(text);\n");
+            sb.append("  }\n");
+        }
         sb.append("}\n");
         return sb.toString();
     }
@@ -21,6 +28,7 @@ public class IRToJava {
             return "var " + a.name + " = " + sanitize(a.expr) + ";";
         }
         if (n instanceof IR.Call c) {
+            if ("msg".equals(c.callee)) needMsg = true;
             String args = String.join(", ", c.args);
             return c.callee + "(" + args + ");";
         }

@@ -50,12 +50,6 @@ public class RuleStore {
     }
 
     public synchronized void save() throws IOException {
-        try (BufferedWriter bw = Files.newBufferedWriter(rulesFile, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            for (Rule r : rules) {
-                bw.write(mapper.writeValueAsString(r));
-                bw.write("\n");
-            }
-        }
         try (BufferedWriter bw = Files.newBufferedWriter(processedFile, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             for (String p : processed) {
                 bw.write(p);

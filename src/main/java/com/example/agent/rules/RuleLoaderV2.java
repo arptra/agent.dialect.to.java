@@ -3,9 +3,12 @@ package com.example.agent.rules;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 /** Loads/saves JSONL rules (RuleV2) from runtime/rules.jsonl */
 public class RuleLoaderV2 {
@@ -37,19 +40,31 @@ public class RuleLoaderV2 {
   }
 
   public synchronized void save() throws IOException {
-    try (var bw = Files.newBufferedWriter(rulesFile, StandardCharsets.UTF_8,
-        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+    System.out.println("[LEARN] rules path = " + rulesFile.toAbsolutePath());
+    if (rules.isEmpty()) {
+      if (Files.exists(rulesFile) && Files.size(rulesFile) > 0) {
+        System.err.println("[WARN] repo has 0 rules; skip overwriting non-empty " + rulesFile.toAbsolutePath());
+      } else {
+        System.err.println("[WARN] repo has 0 rules; skip writing " + rulesFile.toAbsolutePath());
+      }
+      return;
+    }
+    Path tmp = rulesFile.resolveSibling("rules.jsonl.tmp");
+    try (var bw = Files.newBufferedWriter(tmp, UTF_8, CREATE, TRUNCATE_EXISTING)) {
       for (RuleV2 r : rules) {
         bw.write(mapper.writeValueAsString(r));
-        bw.write("\n");
+        bw.write('\n');
       }
     }
+    Files.move(tmp, rulesFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    System.out.println("[SAVE] wrote " + rules.size() + " rules to " + rulesFile.toAbsolutePath());
   }
 
   private void load() throws IOException {
+    System.out.println("[LEARN] rules path = " + rulesFile.toAbsolutePath());
     rules.clear();
     if (!Files.exists(rulesFile)) return;
-    try (var br = Files.newBufferedReader(rulesFile, StandardCharsets.UTF_8)) {
+    try (var br = Files.newBufferedReader(rulesFile, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
         line = line.trim();

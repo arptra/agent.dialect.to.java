@@ -1,6 +1,10 @@
 package com.example.agent.cli;
 
 import com.example.agent.api.TranslatorEngine;
+import com.example.agent.docs.DocGrammarExtractor;
+import com.example.agent.grammar.GrammarSeeder;
+import com.example.agent.grammar.GrammarStore;
+import com.example.agent.rules.RuleLoaderV2;
 
 import java.nio.file.Path;
 import java.nio.file.Files;
@@ -9,11 +13,21 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("Usage:\n  learn <repoRoot> [exts=.dlx,.dsl,.txt] [runtime=runtime]\n  translate <file> [runtime=runtime]\n  fix <dialectFile> <javaFile> <feedback.txt> [runtime=runtime]\n");
+            System.out.println("Usage:\n  learn <repoRoot> [exts=.dlx,.dsl,.txt] [runtime=runtime]\n  translate <file> [runtime=runtime]\n  fix <dialectFile> <javaFile> <feedback.txt> [runtime=runtime]\n  learn-doc <spec.docx> [runtime=runtime]\n");
             return;
         }
         String cmd = args[0];
         switch (cmd) {
+            case "learn-doc" -> {
+                Path doc = Path.of(args[1]);
+                Path runtime = Path.of(args.length >= 3 ? args[2] : "runtime");
+                GrammarStore gs = new GrammarStore(runtime);
+                new DocGrammarExtractor().extract(doc, gs);
+                gs.save();
+                var repo = new RuleLoaderV2(runtime);
+                new GrammarSeeder().seed(gs, repo);
+                System.out.println("Doc learn OK");
+            }
             case "learn" -> {
                 Path repo = Path.of(args[1]);
                 String exts = args.length >= 3 ? args[2] : ".dlx,.dsl,.txt";

@@ -100,7 +100,7 @@ public class GigaChatOpenAIClient implements LlmProvider {
 
     @Override
     public String chat(List<Map<String, String>> messages, double temperature) throws IOException {
-        String url = baseUrl + "/v1/chat/completions";
+        String url = baseUrl + "/api/v1/chat/completions";
         var payload = Map.of(
                 "model", model,
                 "messages", messages,
@@ -114,6 +114,8 @@ public class GigaChatOpenAIClient implements LlmProvider {
         Request req = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer " + token)
+                .addHeader("Accept", "application/json")
+                .addHeader("Content-Type", "application/json")
                 .post(body)
                 .build();
         try (Response resp = http.newCall(req).execute()) {

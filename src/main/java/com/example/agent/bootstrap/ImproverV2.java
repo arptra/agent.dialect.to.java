@@ -1,6 +1,6 @@
 package com.example.agent.bootstrap;
 
-import com.example.agent.providers.GigaChatOpenAIClient;
+import com.example.agent.providers.LlmProvider;
 import com.example.agent.rules.RuleLoaderV2;
 import com.example.agent.rules.RuleV2;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ImproverV2 {
-  private final GigaChatOpenAIClient llm;
+  private final LlmProvider llm;
   private final RuleLoaderV2 repo;
   private final ObjectMapper mapper = new ObjectMapper();
 
-  public ImproverV2(GigaChatOpenAIClient llm, RuleLoaderV2 repo) {
+  public ImproverV2(LlmProvider llm, RuleLoaderV2 repo) {
     this.llm = llm; this.repo = repo;
   }
 

@@ -17,6 +17,7 @@ import java.security.cert.CertificateFactory;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class GigaChatOpenAIClient implements LlmProvider {
 
@@ -64,7 +65,10 @@ public class GigaChatOpenAIClient implements LlmProvider {
         if (accessToken != null && System.currentTimeMillis() < tokenExpiresAt) {
             return accessToken;
         }
-        String url = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
+        String url = System.getProperty(
+                "GIGACHAT_AUTH_URL",
+                "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
+        );
         RequestBody body = RequestBody.create(
                 "scope=GIGACHAT_API_PERS",
                 MediaType.parse("application/x-www-form-urlencoded")
@@ -72,6 +76,8 @@ public class GigaChatOpenAIClient implements LlmProvider {
         Request req = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Basic " + apiKey)
+                .addHeader("Accept", "application/json")
+                .addHeader("RqUID", UUID.randomUUID().toString())
                 .post(body)
                 .build();
         try (Response resp = http.newCall(req).execute()) {

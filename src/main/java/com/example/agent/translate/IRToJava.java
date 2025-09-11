@@ -77,6 +77,18 @@ public class IRToJava {
             sb.append(ind).append("}");
             return sb.toString();
         }
+        if (n instanceof IR.Pragma p) {
+            String name = p.name == null ? "" : p.name.trim();
+            String args = p.args == null ? "" : p.args.trim();
+            if (name.equalsIgnoreCase("ERROR")) {
+                if (args.startsWith("(") && args.endsWith(")")) {
+                    args = args.substring(1, args.length() - 1);
+                }
+                return ind + "throw new RuntimeException(" + args + ");";
+            }
+            String commentArgs = args.isBlank() ? "" : " " + escape(args);
+            return ind + "/* PRAGMA " + name + commentArgs + " */";
+        }
         if (n instanceof IR.UnknownNode u) {
             return ind + "/* UNKNOWN: " + escape(u.raw) + " */";
         }

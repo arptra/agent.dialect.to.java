@@ -29,10 +29,18 @@ public final class RuleJsonlCoercer {
             try {
                 JsonNode node = M.readTree(s);
                 RuleV2 r = coerce(node);
-                if (r != null && isSane(r)) {
-                    if (r.id == null || r.id.isBlank()) r.id = genId(r);
-                    if (r.priority == 0) r.priority = defaultPriority(r.type);
-                    out.add(r);
+                if (r != null) {
+                    if ("segment".equalsIgnoreCase(r.type) &&
+                        "regex_replace".equalsIgnoreCase(r.strategy)) {
+                        r.type = "rewrite";
+                        r.pattern = r.regex;
+                        r.regex = null;
+                    }
+                    if (isSane(r)) {
+                        if (r.id == null || r.id.isBlank()) r.id = genId(r);
+                        if (r.priority == 0) r.priority = defaultPriority(r.type);
+                        out.add(r);
+                    }
                 }
             } catch (Exception ignored) {
             }

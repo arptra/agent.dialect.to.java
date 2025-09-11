@@ -3,7 +3,7 @@
     {
       "id": "seg_semicolon",
       "strategy": "regex_outside_quotes_parens",
-      "regex": ";",
+      "regex": ";|\\n",
       "priority": 10
     },
     {
@@ -204,7 +204,7 @@
     {
       "id": "stmt_assign_colon",
       "irType": "Assign",
-      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*:=\\s*(.+);\\s*$",
+        "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*:=\\s*(.+);?\\s*$",
       "fields": [
         "name",
         "expr"
@@ -214,7 +214,7 @@
     {
       "id": "stmt_assign_equal",
       "irType": "Assign",
-      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*=\\s*(.+);\\s*$",
+        "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*=\\s*(.+);?\\s*$",
       "fields": [
         "name",
         "expr"

@@ -37,16 +37,25 @@ public class RuleLoaderV2 {
   }
 
   public synchronized void save() throws IOException {
-    try (var bw = Files.newBufferedWriter(rulesFile, StandardCharsets.UTF_8,
+    System.out.println("[LEARN] rules path = " + rulesFile.toAbsolutePath());
+    if (rules.isEmpty() && Files.exists(rulesFile) && Files.size(rulesFile) > 0) {
+      System.err.println("[WARN] repo has 0 rules; skip overwriting non-empty " + rulesFile.toAbsolutePath());
+      return;
+    }
+    Path tmp = rulesFile.resolveSibling("rules.jsonl.tmp");
+    try (var bw = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8,
         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
       for (RuleV2 r : rules) {
         bw.write(mapper.writeValueAsString(r));
-        bw.write("\n");
+        bw.write('\n');
       }
     }
+    Files.move(tmp, rulesFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    System.out.println("[SAVE] wrote " + rules.size() + " rules to " + rulesFile.toAbsolutePath());
   }
 
   private void load() throws IOException {
+    System.out.println("[LEARN] rules path = " + rulesFile.toAbsolutePath());
     rules.clear();
     if (!Files.exists(rulesFile)) return;
     try (var br = Files.newBufferedReader(rulesFile, StandardCharsets.UTF_8)) {

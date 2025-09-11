@@ -1,6 +1,7 @@
 package com.example.agent.rules;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -9,17 +10,31 @@ import java.util.regex.Pattern;
 public final class SegmentEngine {
 
     public List<String> segment(String src, List<RuleV2> segmentRules) {
-        // Apply the first supported strategy rule; fallback to simple semicolon split.
+        List<String> tokens = List.of(src);
+        boolean applied = false;
         for (RuleV2 r : segmentRules) {
+            if ("regex_boundary_keep".equalsIgnoreCase(r.strategy) && r.regex != null) {
+                List<String> next = new ArrayList<>();
+                Pattern p = Pattern.compile(r.regex, Pattern.CASE_INSENSITIVE);
+                for (String t : tokens) next.addAll(boundaryKeep(t, p));
+                tokens = next; applied = true; continue;
+            }
             if ("regex_outside_quotes_parens".equalsIgnoreCase(r.strategy) && r.regex != null) {
-                return splitOutsideQuotesAndParens(src, Pattern.compile(r.regex));
+                List<String> next = new ArrayList<>();
+                Pattern p = Pattern.compile(r.regex);
+                for (String t : tokens) next.addAll(splitOutsideQuotesAndParens(t, p));
+                tokens = next; applied = true; continue;
             }
             if ("regex".equalsIgnoreCase(r.strategy) && r.regex != null) {
-                return Arrays.asList(src.split(r.regex));
+                List<String> next = new ArrayList<>();
+                for (String t : tokens) next.addAll(Arrays.asList(t.split(r.regex)));
+                tokens = next; applied = true; continue;
             }
         }
-        // Fallback:
-        return splitOutsideQuotesAndParens(src, Pattern.compile(";"));
+        if (!applied) {
+            return splitOutsideQuotesAndParens(src, Pattern.compile(";"));
+        }
+        return tokens;
     }
 
     private List<String> splitOutsideQuotesAndParens(String s, Pattern sep) {
@@ -62,6 +77,26 @@ public final class SegmentEngine {
         }
         String t = sb.toString().trim();
         if (!t.isEmpty()) out.add(t);
+        return out;
+    }
+
+    private List<String> boundaryKeep(String s, Pattern p) {
+        List<String> out = new ArrayList<>();
+        Matcher m = p.matcher(s);
+        int pos = 0;
+        while (m.find()) {
+            if (m.start() > pos) {
+                String before = s.substring(pos, m.start()).trim();
+                if (!before.isEmpty()) out.add(before);
+            }
+            String tok = m.group().trim();
+            if (!tok.isEmpty()) out.add(tok);
+            pos = m.end();
+        }
+        if (pos < s.length()) {
+            String tail = s.substring(pos).trim();
+            if (!tail.isEmpty()) out.add(tail);
+        }
         return out;
     }
 }

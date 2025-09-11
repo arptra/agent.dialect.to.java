@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class GigaChatOpenAIClient implements LlmProvider {
 
@@ -53,9 +54,11 @@ public class GigaChatOpenAIClient implements LlmProvider {
             SSLContext ctx = SSLContext.getInstance("TLS");
             ctx.init(null, trustAll, new SecureRandom());
             return new OkHttpClient.Builder()
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .callTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
                     .sslSocketFactory(ctx.getSocketFactory(), (X509TrustManager) trustAll[0])
                     .hostnameVerifier((h, s) -> true)
-                    .callTimeout(Duration.ofSeconds(60))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -127,6 +130,8 @@ public class GigaChatOpenAIClient implements LlmProvider {
             JsonNode json = mapper.readTree(resp.body().bytes());
             Log.info("GigaChat response payload: " + json.toString());
             return json.get("choices").get(0).get("message").get("content").asText();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

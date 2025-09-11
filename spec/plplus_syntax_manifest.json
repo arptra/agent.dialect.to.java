@@ -389,7 +389,7 @@
       "priority": 9
     },
     { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
       "replace": "$1($2)",
       "priority": 8
     },
@@ -419,7 +419,7 @@
       "priority": 9
     },
     { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
       "replace": "$1($2)",
       "priority": 8
     },
@@ -439,7 +439,7 @@
       "priority": 9
     },
     { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
       "replace": "$1($2)",
       "priority": 6
     },
@@ -522,7 +522,7 @@
     },
     {
       "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
       "replace": "$1($2)",
       "priority": 6
     },

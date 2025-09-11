@@ -39,6 +39,16 @@
   ],
   "blocks": [
     {
+      "id": "blk_begin_exception",
+      "irType": "TryCatch",
+      "open": "^\\s*(?i:BEGIN)\\b",
+      "middle": [
+        "^\\s*(?i:EXCEPTION)(?:\\s+(?i:WHEN)\\s+([A-Za-z_][A-Za-z0-9_]*?)\\s+(?i:THEN))?\\s*(.*)$"
+      ],
+      "close": "(?i:END)\\b\\s*;?",
+      "priority": 60
+    },
+    {
       "id": "blk_begin_end",
       "irType": "Block",
       "open": "^\\s*(?i:BEGIN)\\b",

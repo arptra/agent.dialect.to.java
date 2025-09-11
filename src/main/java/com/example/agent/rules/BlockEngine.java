@@ -42,9 +42,16 @@ public final class BlockEngine {
         } else {
           // MIDDLE
           for (Pattern mid : top.b.middle) {
-            if (mid.matcher(t).matches()) {
-              top.switchToElseLike();
+            Matcher mm = mid.matcher(t);
+            if (mm.matches()) {
+              String ex = safe(mm,1);
+              String rest = safe(mm,2);
+              top.switchToElseLike(ex);
               current = top.current();
+              if (rest != null && !rest.isBlank()) {
+                IR.Node midStmt = stmt.match(rest.trim());
+                current.add(midStmt);
+              }
               handled = true; break;
             }
           }
@@ -81,8 +88,9 @@ public final class BlockEngine {
     boolean elseLike = false;
     final List<IR.Node> thenBody = new ArrayList<>();
     final List<IR.Node> elseBody = new ArrayList<>();
+    String midValue;
     Frame(CompBlock b, IR.Node node){ this.b=b; this.node=node; }
-    void switchToElseLike(){ this.elseLike = true; }
+    void switchToElseLike(String mid){ this.elseLike = true; this.midValue = mid; }
     List<IR.Node> current(){ return elseLike ? elseBody : thenBody; }
     IR.Node finalizeNode() {
       try {
@@ -90,6 +98,9 @@ public final class BlockEngine {
         try { var thenF = cls.getField("thenBody"); thenF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
         try { var elseF = cls.getField("elseBody"); elseF.set(node, elseBody); } catch (NoSuchFieldException ignore){}
         try { var bodyF = cls.getField("body"); bodyF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
+        try { var tryF = cls.getField("tryBody"); tryF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
+        try { var catchF = cls.getField("catchBody"); catchF.set(node, elseBody); } catch (NoSuchFieldException ignore){}
+        try { var exF = cls.getField("exceptionName"); exF.set(node, midValue); } catch (NoSuchFieldException ignore){}
       } catch (Throwable ignored) {}
       return node;
     }

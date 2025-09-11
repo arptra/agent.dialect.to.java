@@ -1,7 +1,7 @@
 package com.example.agent.bootstrap;
 
 import com.example.agent.knowledge.RuleStore;
-import com.example.agent.providers.GigaChatOpenAIClient;
+import com.example.agent.providers.LlmProvider;
 import com.example.agent.rag.SimpleIndexer;
 import com.example.agent.rules.RuleLoaderV2;
 import com.example.agent.rules.RuleV2;
@@ -12,13 +12,13 @@ import java.nio.file.*;
 import java.util.*;
 
 public class LearnerV2 {
-  private final GigaChatOpenAIClient llm;
+  private final LlmProvider llm;
   private final RuleStore processedCache;
   private final RuleLoaderV2 repo;
   private final SimpleIndexer indexer;
   private final ObjectMapper mapper = new ObjectMapper();
 
-  public LearnerV2(GigaChatOpenAIClient llm, RuleStore processedCache, RuleLoaderV2 repo, SimpleIndexer indexer) {
+  public LearnerV2(LlmProvider llm, RuleStore processedCache, RuleLoaderV2 repo, SimpleIndexer indexer) {
     this.llm = llm; this.processedCache = processedCache; this.repo = repo; this.indexer = indexer;
   }
 

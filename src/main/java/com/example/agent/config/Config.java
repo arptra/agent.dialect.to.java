@@ -21,7 +21,7 @@ public class Config {
     }
 
     public static Config fromEnv() {
-        String base = propOrEnv("GIGACHAT_API_BASE", "http://localhost:8000");
+        String base = propOrEnv("GIGACHAT_API_BASE", "https://gigachat.sber.ru");
         String key  = propOrEnv("GIGACHAT_API_KEY", "");
         String model= propOrEnv("GIGACHAT_MODEL", "gigachat");
         String provider = propOrEnv("LLM_PROVIDER", "openai");

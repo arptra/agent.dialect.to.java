@@ -40,13 +40,23 @@ public final class SegmentEngine {
 
     private List<String> splitKeywordBoundaries(List<String> tokens) {
         List<String> out = new ArrayList<>();
-        Pattern kw = Pattern.compile("^(?i)(BEGIN|IF|END)\\b\\s+(.+)$");
+        Pattern simple = Pattern.compile("^(?i)(BEGIN|END|ELSE)\\b\\s+(.+)$");
+        Pattern cond = Pattern.compile("^(?i)(IF|ELSIF)\\b\\s+(.+?)\\s+(?i:THEN)\\b(.*)$", Pattern.DOTALL);
         for (String t : tokens) {
             String trimmed = t.trim();
-            Matcher m = kw.matcher(trimmed);
-            if (m.matches()) {
-                out.add(m.group(1).toUpperCase(Locale.ROOT));
-                String rest = m.group(2).trim();
+            Matcher cm = cond.matcher(trimmed);
+            if (cm.matches()) {
+                String kw = cm.group(1).toUpperCase(Locale.ROOT);
+                String condText = cm.group(2).trim();
+                String after = cm.group(3).trim();
+                out.add(kw + " " + condText + " THEN");
+                if (!after.isEmpty()) out.add(after);
+                continue;
+            }
+            Matcher sm = simple.matcher(trimmed);
+            if (sm.matches()) {
+                out.add(sm.group(1).toUpperCase(Locale.ROOT));
+                String rest = sm.group(2).trim();
                 if (!rest.isEmpty()) out.add(rest);
             } else {
                 out.add(trimmed);

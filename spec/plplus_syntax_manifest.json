@@ -5,18 +5,6 @@
       "strategy": "regex_outside_quotes_parens",
       "regex": ";|\\n",
       "priority": 10
-    },
-    {
-      "id": "seg_ctrl_keywords",
-      "strategy": "regex_keep",
-      "regex": "(?i)\\b(?:BEGIN|END\\s+IF|END\\s+LOOP|END\\s+CASE|END|ELSIF|ELSE)\\b",
-      "priority": 9
-    },
-    {
-      "id": "seg_then_after",
-      "strategy": "regex_after",
-      "regex": "(?i)\\bTHEN\\b",
-      "priority": 9
     }
   ],
   "blocks": [
@@ -67,55 +55,6 @@
       "irType": "Loop",
       "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s+(?i:LOOP)\\b",
       "close": "(?i:END)\\s+(?i:LOOP)\\s*;?",
-      "priority": 50
-    },
-    {
-      "id": "blk_begin_end",
-      "irType": "Block",
-      "open": "^\\s*(?i:BEGIN)\\s*$",
-      "close": "^\\s*(?i:END)\\s*;?\\s*$",
-      "priority": 50
-    },
-    {
-      "id": "blk_if",
-      "irType": "If",
-      "open": "^\\s*(?i:IF)\\s+(.+?)\\s+(?i:THEN)\\s*$",
-      "middle": [
-        "^\\s*(?i:ELSIF)\\s+(.+?)\\s+(?i:THEN)\\s*$",
-        "^\\s*(?i:ELSE)\\s*$"
-      ],
-      "close": "^\\s*(?i:END\\s+IF)\\s*;?\\s*$",
-      "priority": 50
-    },
-    {
-      "id": "blk_case",
-      "irType": "Case",
-      "open": "^\\s*(?i:CASE)\\b(.*)$",
-      "middle": [
-        "^\\s*(?i:WHEN)\\b.+?(?i:THEN)\\s*$"
-      ],
-      "close": "^\\s*(?i:END\\s+CASE)\\s*;?\\s*$",
-      "priority": 50
-    },
-    {
-      "id": "blk_while",
-      "irType": "Loop",
-      "open": "^\\s*(?i:WHILE)\\s+(.+?)\\s+(?i:LOOP)\\s*$",
-      "close": "^\\s*(?i:END\\s+LOOP)\\s*;?\\s*$",
-      "priority": 50
-    },
-    {
-      "id": "blk_for_range",
-      "irType": "Loop",
-      "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s*\\.\\.\\s*(.+?)\\s+(?i:LOOP)\\b",
-      "close": "(?i:END)\\s+(?i:LOOP)\\s*;?",
-      "priority": 50
-    },
-    {
-      "id": "blk_for_each",
-      "irType": "Loop",
-      "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s+(?i:LOOP)\\s*$",
-      "close": "^\\s*(?i:END\\s+LOOP)\\s*;?\\s*$",
       "priority": 50
     },
     {
@@ -192,7 +131,7 @@
     {
       "id": "stmt_assign_colon",
       "irType": "Assign",
-        "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*:=\\s*(.+);?\\s*$",
+      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*:=\\s*(.+);?\\s*$",
       "fields": [
         "name",
         "expr"
@@ -202,7 +141,7 @@
     {
       "id": "stmt_assign_equal",
       "irType": "Assign",
-        "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*=\\s*(.+);?\\s*$",
+      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*=\\s*(.+);?\\s*$",
       "fields": [
         "name",
         "expr"
@@ -212,7 +151,7 @@
     {
       "id": "stmt_call",
       "irType": "Call",
-        "regex": "^\\s*&?([A-Za-z_][A-Za-z0-9_]*)(?:\\s*::\\s*([A-Za-z_][A-Za-z0-9_]*))?\\s*\\((.*)\\)\\s*;?\\s*$",
+      "regex": "^\\s*&?([A-Za-z_][A-Za-z0-9_]*)(?:\\s*::\\s*([A-Za-z_][A-Za-z0-9_]*))?\\s*\\((.*)\\)\\s*;?\\s*$",
       "fields": [
         "callee",
         "ns",
@@ -355,80 +294,11 @@
     }
   ],
   "rewrites": [
-    { "id": "rw_nl_after_begin_like",
+    {
+      "id": "rw_nl_after_begin_like",
       "pattern": "(?i)\\b(BEGIN|LOOP)\\b\\s+",
       "replace": "$1\n",
       "priority": 9
-    },
-    { "id": "rw_nl_before_keywords",
-      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
-      "replace": "\n$1",
-      "priority": 9
-    },
-    { "id": "rw_nl_after_then",
-      "pattern": "(?i)\\bTHEN\\b",
-      "replace": "THEN\n",
-      "priority": 9
-    },
-    { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$1($2)",
-      "priority": 8
-    },
-    { "id": "rw_macro_anyprefix_safe",
-      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$2($3)",
-      "priority": 7
-    },
-    { "id": "rw_if_not_to_bang",
-      "pattern": "(?i)\\bIF\\s+NOT\\s+([^\\n;]+?)\\s+THEN\\b",
-      "replace": "IF !($1) THEN",
-      "priority": 7
-    },
-    { "id": "rw_nl_after_begin_like",
-      "pattern": "(?i)\\b(BEGIN|LOOP)\\b\\s+",
-      "replace": "$1\n",
-      "priority": 9
-    },
-    { "id": "rw_nl_before_keywords",
-      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
-      "replace": "\n$1",
-      "priority": 9
-    },
-    { "id": "rw_nl_after_then",
-      "pattern": "(?i)\\bTHEN\\b",
-      "replace": "THEN\n",
-      "priority": 9
-    },
-    { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$1($2)",
-      "priority": 8
-    },
-    { "id": "rw_macro_anyprefix_safe",
-      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$2($3)",
-      "priority": 7
-    },
-    { "id": "rw_nl_before_keywords",
-      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
-      "replace": "\n$1",
-      "priority": 9
-    },
-    { "id": "rw_nl_after_then",
-      "pattern": "(?i)\\bTHEN\\b",
-      "replace": "THEN\n",
-      "priority": 9
-    },
-    { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$1($2)",
-      "priority": 6
-    },
-    { "id": "rw_macro_anyprefix_safe",
-      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$2($3)",
-      "priority": 5
     },
     {
       "id": "rw_nl_before_keywords",
@@ -443,10 +313,22 @@
       "priority": 9
     },
     {
-      "id": "rw_macro_anyprefix",
-      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
+      "id": "rw_amp_macro_strict",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$1($2)",
+      "priority": 8
+    },
+    {
+      "id": "rw_macro_anyprefix_safe",
+      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
       "replace": "$2($3)",
-      "priority": 5
+      "priority": 7
+    },
+    {
+      "id": "rw_if_not_to_bang",
+      "pattern": "(?i)\\bIF\\s+NOT\\s+([^\\n;]+?)\\s+THEN\\b",
+      "replace": "IF !($1) THEN",
+      "priority": 7
     },
     {
       "id": "rw_ns_colons_many",
@@ -492,7 +374,7 @@
     },
     {
       "id": "rw_pow",
-      "pattern": "([A-Za-z_][A-Za-z0-9_\\.\\]\\[]*|\\d+(?:\\.\\d+)?)\\s*\\^\\s*([A-Za-z_][A-Za-z0-9_\\.\\]\\[]*|\\d+(?:\\.\\d+)?)",
+      "pattern": "([A-Za-z_][A-Za-z0-9_.\\]\\[]*|\\d+(?:\\.\\d+)?)\\s*\\^\\s*([A-Za-z_][A-Za-z0-9_.\\]\\[]*|\\d+(?:\\.\\d+)?)",
       "replace": "Math.pow($1,$2)",
       "priority": 2
     },
@@ -501,18 +383,6 @@
       "pattern": "(\\b[A-Za-z_][A-Za-z0-9_]*\\b)\\s*%\\s*(id|class|state|collection|parent|parentclass|entity|classparent|statename|classname|rowid|key|value|lock|delete|log|scn|ses|init|rowtype|rowtable|size|compare|attrs|arch)\\b",
       "replace": "$1.$2",
       "priority": 4
-    },
-    {
-      "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$1($2)",
-      "priority": 6
-    },
-    {
-      "id": "rw_macro_anyprefix_safe",
-      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
-      "replace": "$2($3)",
-      "priority": 5
     }
   ],
   "types": [
@@ -614,13 +484,13 @@
     "NAN",
     "NEXT",
     "NOCOPY",
-      "NOCYCLE",
-      "NOT",
-      "NOWAIT",
-      "NULL",
-      "NUMBER",
-      "NVL",
-      "OF",
+    "NOCYCLE",
+    "NOT",
+    "NOWAIT",
+    "NULL",
+    "NUMBER",
+    "NVL",
+    "OF",
     "ONE",
     "OR",
     "ORDER",

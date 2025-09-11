@@ -25,10 +25,12 @@ public class TranslatorAgent {
   }
 
   public String translate(String source) throws IOException {
-    indexer.addDocument(source);
+    // 0) Rewrite according to manifest rules
+    String normalized = new RewriteEngine().applyAll(source, rules.ofType("rewrite"));
+    indexer.addDocument(normalized);
 
     // 1) Segment
-    var seg = new SegmentEngine().segment(source, rules.ofType("segment"));
+    var seg = new SegmentEngine().segment(normalized, rules.ofType("segment"));
 
     // 2) Blocks + statements
     IR ir = new BlockEngine().parse(seg, rules.ofType("block"), rules.ofType("stmt"));

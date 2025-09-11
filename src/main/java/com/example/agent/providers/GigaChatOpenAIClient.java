@@ -3,6 +3,7 @@ package com.example.agent.providers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
+import com.example.agent.util.Log;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -106,6 +107,7 @@ public class GigaChatOpenAIClient implements LlmProvider {
                 "messages", messages,
                 "temperature", temperature
         );
+        Log.info("GigaChat request payload: " + mapper.writeValueAsString(payload));
         RequestBody body = RequestBody.create(
                 mapper.writeValueAsBytes(payload),
                 MediaType.parse("application/json")
@@ -123,6 +125,7 @@ public class GigaChatOpenAIClient implements LlmProvider {
                 throw new IOException("GigaChat API error: " + resp.code() + " " + resp.message() + " body=" + (resp.body() != null ? resp.body().string() : ""));
             }
             JsonNode json = mapper.readTree(resp.body().bytes());
+            Log.info("GigaChat response payload: " + json.toString());
             return json.get("choices").get(0).get("message").get("content").asText();
         }
     }

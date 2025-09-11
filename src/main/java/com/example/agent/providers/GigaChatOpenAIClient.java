@@ -29,7 +29,7 @@ public class GigaChatOpenAIClient implements LlmProvider {
     private long tokenExpiresAt;
 
     public GigaChatOpenAIClient(String baseUrl, String apiKey, String model) {
-        this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length()-1) : baseUrl;
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.apiKey = apiKey;
         this.model = model;
         this.http = buildClient();
@@ -37,40 +37,24 @@ public class GigaChatOpenAIClient implements LlmProvider {
 
     private OkHttpClient buildClient() {
         try {
-            String caFile = System.getProperty("GIGACHAT_CA_FILE");
-            if (caFile == null || caFile.isBlank()) {
-                caFile = System.getenv("GIGACHAT_CA_FILE");
-            }
-            if (caFile == null || caFile.isBlank()) {
-                TrustManager[] trustAll = new TrustManager[]{new X509TrustManager() {
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() { return new java.security.cert.X509Certificate[0]; }
-                }};
-                SSLContext ctx = SSLContext.getInstance("TLS");
-                ctx.init(null, trustAll, new SecureRandom());
-                return new OkHttpClient.Builder()
-                        .sslSocketFactory(ctx.getSocketFactory(), (X509TrustManager) trustAll[0])
-                        .hostnameVerifier((h, s) -> true)
-                        .callTimeout(Duration.ofSeconds(60))
-                        .build();
-            }
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            try (InputStream caInput = Files.newInputStream(Paths.get(caFile))) {
-                Certificate ca = cf.generateCertificate(caInput);
-                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-                ks.load(null, null);
-                ks.setCertificateEntry("gigachat-ca", ca);
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                tmf.init(ks);
-                X509TrustManager tm = (X509TrustManager) tmf.getTrustManagers()[0];
-                SSLContext ctx = SSLContext.getInstance("TLS");
-                ctx.init(null, new TrustManager[]{tm}, new SecureRandom());
-                return new OkHttpClient.Builder()
-                        .sslSocketFactory(ctx.getSocketFactory(), tm)
-                        .callTimeout(Duration.ofSeconds(60))
-                        .build();
-            }
+            TrustManager[] trustAll = new TrustManager[]{new X509TrustManager() {
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                }
+
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                }
+
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return new java.security.cert.X509Certificate[0];
+                }
+            }};
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            ctx.init(null, trustAll, new SecureRandom());
+            return new OkHttpClient.Builder()
+                    .sslSocketFactory(ctx.getSocketFactory(), (X509TrustManager) trustAll[0])
+                    .hostnameVerifier((h, s) -> true)
+                    .callTimeout(Duration.ofSeconds(60))
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -80,7 +64,7 @@ public class GigaChatOpenAIClient implements LlmProvider {
         if (accessToken != null && System.currentTimeMillis() < tokenExpiresAt) {
             return accessToken;
         }
-        String url = baseUrl + "/api/v1/tokens";
+        String url = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
         RequestBody body = RequestBody.create(
                 "scope=GIGACHAT_API_PERS",
                 MediaType.parse("application/x-www-form-urlencoded")

@@ -21,13 +21,12 @@ public final class BlockEngine {
     }
   }
 
-  public IR parse(List<String> tokens, List<RuleV2> blockRules, List<RuleV2> stmtRules) {
+  public IR parse(List<String> tokens, List<RuleV2> blockRules, StmtEngine stmt) {
     List<CompBlock> blocks = new ArrayList<>();
     blockRules.stream().sorted((a,b)->Integer.compare(b.priority, a.priority)).forEach(r -> blocks.add(new CompBlock(r)));
     var ir = new IR();
     var stack = new ArrayDeque<Frame>();
     List<IR.Node> current = ir.nodes;
-    var stmt = new StmtEngine();
 
     for (String t : tokens) {
       boolean handled = false;
@@ -68,7 +67,7 @@ public final class BlockEngine {
       if (handled) continue;
 
       // STMT
-      IR.Node n = stmt.match(t, stmtRules);
+      IR.Node n = stmt.match(t);
       current.add(n);
     }
 

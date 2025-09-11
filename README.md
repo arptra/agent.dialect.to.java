@@ -9,9 +9,30 @@
 
 ## Переменные окружения
 ```
-export GIGACHAT_API_BASE=http://localhost:8000
+export GIGACHAT_API_BASE=https://gigachat.sber.ru
 export GIGACHAT_API_KEY=YOUR_KEY
 export GIGACHAT_MODEL=gigachat
+# optional mTLS auth
+export GIGACHAT_CERT_FILE=
+export GIGACHAT_KEY_FILE=
+export GIGACHAT_CA_FILE=
+```
+
+Чтобы Gradle доверял сертификату `russiantrustedca.pem`, создайте truststore и укажите его в `gradle.properties`:
+
+```bash
+keytool -importcert \
+    -file russiantrustedca.pem \
+    -alias russian-ca \
+    -keystore gradle-truststore.p12 \
+    -storetype PKCS12 \
+    -storepass changeit -noprompt
+```
+
+```
+systemProp.javax.net.ssl.trustStore=gradle-truststore.p12
+systemProp.javax.net.ssl.trustStorePassword=changeit
+systemProp.javax.net.ssl.trustStoreType=PKCS12
 ```
 
 ## API (встраиваемый)
@@ -32,6 +53,8 @@ System.out.println(java);
 ./gradlew run --args="translate samples/example.dlx"
 ./gradlew run --args="fix path/to/frag.dlx path/to/current.java path/to/feedback.txt"
 ```
+
+Для включения подробного логирования команды `learn` установите `log=true` в `gradle.properties`.
 
 ## Как это работает
 - `Learner` опрашивает GigaChat и собирает **правила** (regex+группы+шаблон Java) → `runtime/rules.jsonl`.

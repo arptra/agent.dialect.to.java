@@ -37,5 +37,15 @@ public class BeginBlockTest {
         assertTrue(norm.contains("{\n        var P_ROLLBACK = 1;\n    }"));
         assertFalse(norm.contains("UNKNOWN"));
     }
+
+    @Test
+    void beginAssignmentSameLineSplits() throws Exception {
+        Path runtime = Files.createTempDirectory("runtime");
+        new ManifestDrivenGrammarSeeder(Path.of("spec/plplus_syntax_manifest.json"), runtime).seed();
+        RuleLoaderV2 loader = new RuleLoaderV2(runtime);
+        String src = "BEGIN P_ROLLBACK := 1; END;";
+        List<String> tokens = new SegmentEngine().segment(src, loader.ofType("segment"));
+        assertEquals(List.of("BEGIN", "P_ROLLBACK := 1;", "END;"), tokens);
+    }
 }
 

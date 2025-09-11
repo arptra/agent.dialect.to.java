@@ -33,8 +33,26 @@ public final class SegmentEngine {
             }
             tokens = next;
         }
+        tokens = splitKeywordBoundaries(tokens);
         if (tokens.isEmpty()) return splitOutsideQuotesAndParens(src, Pattern.compile(";"));
         return tokens;
+    }
+
+    private List<String> splitKeywordBoundaries(List<String> tokens) {
+        List<String> out = new ArrayList<>();
+        Pattern kw = Pattern.compile("^(?i)(BEGIN|IF|END)\\b\\s+(.+)$");
+        for (String t : tokens) {
+            String trimmed = t.trim();
+            Matcher m = kw.matcher(trimmed);
+            if (m.matches()) {
+                out.add(m.group(1).toUpperCase(Locale.ROOT));
+                String rest = m.group(2).trim();
+                if (!rest.isEmpty()) out.add(rest);
+            } else {
+                out.add(trimmed);
+            }
+        }
+        return out;
     }
 
     private List<String> splitOutsideQuotesAndParens(String s, Pattern sep) {

@@ -11,7 +11,7 @@ public class IRToJava {
         sb.append("public class ").append(className).append(" {\n");
         sb.append("  public static void main(String[] args) {\n");
         for (IR.Node n : ir.nodes) {
-            sb.append("    ").append(genStmt(n)).append("\n");
+            sb.append(genStmt(n, 1)).append("\n");
         }
         sb.append("  }\n");
         if (needMsg) {
@@ -23,28 +23,64 @@ public class IRToJava {
         return sb.toString();
     }
 
-    private String genStmt(IR.Node n) {
+    private String genStmt(IR.Node n, int indent) {
+        String ind = "    ".repeat(indent);
         if (n instanceof IR.Assign a) {
-            return "var " + a.name + " = " + sanitize(a.expr) + ";";
+            return ind + "var " + a.name + " = " + sanitize(a.expr) + ";";
         }
         if (n instanceof IR.Call c) {
             if ("msg".equals(c.callee)) needMsg = true;
             String args = String.join(", ", c.args);
-            return c.callee + "(" + args + ");";
+            return ind + c.callee + "(" + args + ");";
         }
         if (n instanceof IR.Decl d) {
-            return d.type + " " + d.name + ";";
+            return ind + d.type + " " + d.name + ";";
+        }
+        if (n instanceof IR.Block b) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(ind).append("{\n");
+            for (IR.Node child : b.body) {
+                sb.append(genStmt(child, indent + 1)).append("\n");
+            }
+            sb.append(ind).append("}");
+            return sb.toString();
         }
         if (n instanceof IR.If i) {
-            return "if (" + sanitize(i.cond) + ") { /* TODO then */ } else { /* TODO else */ }";
+            StringBuilder sb = new StringBuilder();
+            sb.append(ind).append("if (").append(sanitize(i.cond)).append(") {\n");
+            for (IR.Node child : i.thenBody) {
+                sb.append(genStmt(child, indent + 1)).append("\n");
+            }
+            sb.append(ind).append("} else {\n");
+            for (IR.Node child : i.elseBody) {
+                sb.append(genStmt(child, indent + 1)).append("\n");
+            }
+            sb.append(ind).append("}");
+            return sb.toString();
         }
         if (n instanceof IR.Loop l) {
-            return "// loop " + l.header + "\n    /* TODO convert loop body */";
+            String header = sanitize(l.header).trim();
+            StringBuilder sb = new StringBuilder();
+            String lower = header.toLowerCase();
+            if (lower.startsWith("for")) {
+                String body = header.substring(3).trim();
+                if (!body.startsWith("(")) body = "(" + body + ")";
+                sb.append(ind).append("for ").append(body).append(" {\n");
+            } else {
+                String cond = lower.startsWith("while") ? header.substring(5).trim() : header;
+                if (!cond.startsWith("(")) cond = "(" + cond + ")";
+                sb.append(ind).append("while ").append(cond).append(" {\n");
+            }
+            for (IR.Node child : l.body) {
+                sb.append(genStmt(child, indent + 1)).append("\n");
+            }
+            sb.append(ind).append("}");
+            return sb.toString();
         }
         if (n instanceof IR.UnknownNode u) {
-            return "/* UNKNOWN: " + escape(u.raw) + " */";
+            return ind + "/* UNKNOWN: " + escape(u.raw) + " */";
         }
-        return "/* TODO */";
+        return ind + "/* TODO */";
     }
 
     private String sanitize(String s) {

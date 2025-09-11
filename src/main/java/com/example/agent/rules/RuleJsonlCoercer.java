@@ -35,6 +35,7 @@ public final class RuleJsonlCoercer {
                         r.type = "rewrite";
                         r.pattern = r.regex;
                         r.regex = null;
+                        r.strategy = null;
                     }
                     if (isSane(r)) {
                         if (r.id == null || r.id.isBlank()) r.id = genId(r);

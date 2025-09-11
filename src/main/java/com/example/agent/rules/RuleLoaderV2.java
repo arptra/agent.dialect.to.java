@@ -41,8 +41,12 @@ public class RuleLoaderV2 {
 
   public synchronized void save() throws IOException {
     System.out.println("[LEARN] rules path = " + rulesFile.toAbsolutePath());
-    if (rules.isEmpty() && Files.exists(rulesFile) && Files.size(rulesFile) > 0) {
-      System.err.println("[WARN] repo has 0 rules; skip overwriting non-empty " + rulesFile.toAbsolutePath());
+    if (rules.isEmpty()) {
+      if (Files.exists(rulesFile) && Files.size(rulesFile) > 0) {
+        System.err.println("[WARN] repo has 0 rules; skip overwriting non-empty " + rulesFile.toAbsolutePath());
+      } else {
+        System.err.println("[WARN] repo has 0 rules; skip writing " + rulesFile.toAbsolutePath());
+      }
       return;
     }
     Path tmp = rulesFile.resolveSibling("rules.jsonl.tmp");

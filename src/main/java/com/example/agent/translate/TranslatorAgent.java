@@ -8,6 +8,7 @@ import com.example.agent.rag.SimpleIndexer;
 import com.example.agent.rules.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,11 @@ public class TranslatorAgent {
     var seg = new SegmentEngine().segment(source, rules.ofType("segment"));
 
     // 2) Blocks + statements
-    IR ir = new BlockEngine().parse(seg, rules.ofType("block"), rules.ofType("stmt"));
+    List<RuleV2> blockRules = new ArrayList<>(rules.ofType("block"));
+    blockRules.addAll(BuiltInRules.blockRules());
+    List<RuleV2> stmtRules = new ArrayList<>(rules.ofType("stmt"));
+    stmtRules.addAll(BuiltInRules.stmtRules());
+    IR ir = new BlockEngine().parse(seg, blockRules, stmtRules);
 
     // 3) Generate Java
     String className = "TranslatedProgram";

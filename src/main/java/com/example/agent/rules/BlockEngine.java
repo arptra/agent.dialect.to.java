@@ -21,7 +21,22 @@ public final class BlockEngine {
     }
   }
 
+  private static final Pattern P_BEGIN = Pattern.compile("^\\s*BEGIN\\s*;?\\s*$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern P_END_ONLY = Pattern.compile("^\\s*END\\s*;?\\s*$", Pattern.CASE_INSENSITIVE);
+
   public IR parse(List<String> tokens, List<RuleV2> blockRules, List<RuleV2> stmtRules) {
+    if (blockRules == null) blockRules = List.of();
+    if (stmtRules == null) stmtRules = List.of();
+
+    // filter BEGIN/END
+    List<String> filtered = new ArrayList<>();
+    for (String t : tokens) {
+      if (P_BEGIN.matcher(t).matches()) continue;
+      if (P_END_ONLY.matcher(t).matches()) continue;
+      filtered.add(t);
+    }
+    tokens = filtered;
+
     List<CompBlock> blocks = new ArrayList<>();
     blockRules.stream().sorted((a,b)->Integer.compare(b.priority, a.priority)).forEach(r -> blocks.add(new CompBlock(r)));
     var ir = new IR();

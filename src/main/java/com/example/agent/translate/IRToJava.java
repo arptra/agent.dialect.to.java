@@ -77,6 +77,20 @@ public class IRToJava {
             sb.append(ind).append("}");
             return sb.toString();
         }
+        if (n instanceof IR.TryCatch tc) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(ind).append("try {\n");
+            for (IR.Node child : tc.tryBody) {
+                sb.append(genStmt(child, indent + 1)).append("\n");
+            }
+            String ex = (tc.exceptionName != null && !tc.exceptionName.isBlank()) ? tc.exceptionName + " e" : "Exception e";
+            sb.append(ind).append("} catch (" + ex + ") {\n");
+            for (IR.Node child : tc.catchBody) {
+                sb.append(genStmt(child, indent + 1)).append("\n");
+            }
+            sb.append(ind).append("}");
+            return sb.toString();
+        }
         if (n instanceof IR.UnknownNode u) {
             return ind + "/* UNKNOWN: " + escape(u.raw) + " */";
         }

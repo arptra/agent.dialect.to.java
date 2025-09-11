@@ -77,6 +77,7 @@ public class GigaChatOpenAIClient implements LlmProvider {
                 .url(url)
                 .addHeader("Authorization", "Basic " + apiKey)
                 .addHeader("Accept", "application/json")
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .addHeader("RqUID", UUID.randomUUID().toString())
                 .post(body)
                 .build();

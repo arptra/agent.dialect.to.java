@@ -1,6 +1,7 @@
 package com.example.agent.rules;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -9,17 +10,31 @@ import java.util.regex.Pattern;
 public final class SegmentEngine {
 
     public List<String> segment(String src, List<RuleV2> segmentRules) {
-        // Apply the first supported strategy rule; fallback to simple semicolon split.
+        List<String> tokens = new ArrayList<>();
+        tokens.add(src);
         for (RuleV2 r : segmentRules) {
+            List<String> next = new ArrayList<>();
             if ("regex_outside_quotes_parens".equalsIgnoreCase(r.strategy) && r.regex != null) {
-                return splitOutsideQuotesAndParens(src, Pattern.compile(r.regex));
+                Pattern p = Pattern.compile(r.regex);
+                for (String t : tokens) next.addAll(splitOutsideQuotesAndParens(t, p));
+            } else if ("regex_after".equalsIgnoreCase(r.strategy) && r.regex != null) {
+                Pattern p = Pattern.compile(r.regex, Pattern.CASE_INSENSITIVE);
+                for (String t : tokens) next.addAll(splitAfterRegex(t, p));
+            } else if ("regex".equalsIgnoreCase(r.strategy) && r.regex != null) {
+                Pattern p = Pattern.compile(r.regex);
+                for (String t : tokens) {
+                    for (String s : p.split(t)) {
+                        s = s.trim();
+                        if (!s.isEmpty()) next.add(s);
+                    }
+                }
+            } else {
+                next.addAll(tokens);
             }
-            if ("regex".equalsIgnoreCase(r.strategy) && r.regex != null) {
-                return Arrays.asList(src.split(r.regex));
-            }
+            tokens = next;
         }
-        // Fallback:
-        return splitOutsideQuotesAndParens(src, Pattern.compile(";"));
+        if (tokens.isEmpty()) return splitOutsideQuotesAndParens(src, Pattern.compile(";"));
+        return tokens;
     }
 
     private List<String> splitOutsideQuotesAndParens(String s, Pattern sep) {
@@ -53,6 +68,7 @@ public final class SegmentEngine {
                 continue;
             }
             if (paren == 0 && sep.matcher(String.valueOf(c)).matches()) {
+                sb.append(c);
                 String t = sb.toString().trim();
                 if (!t.isEmpty()) out.add(t);
                 sb.setLength(0);
@@ -62,6 +78,22 @@ public final class SegmentEngine {
         }
         String t = sb.toString().trim();
         if (!t.isEmpty()) out.add(t);
+        return out;
+    }
+
+    private List<String> splitAfterRegex(String s, Pattern p) {
+        List<String> out = new ArrayList<>();
+        Matcher m = p.matcher(s);
+        int last = 0;
+        while (m.find()) {
+            String before = s.substring(last, m.start()).trim();
+            if (!before.isEmpty()) out.add(before);
+            String match = m.group().trim();
+            if (!match.isEmpty()) out.add(match);
+            last = m.end();
+        }
+        String after = s.substring(last).trim();
+        if (!after.isEmpty()) out.add(after);
         return out;
     }
 }

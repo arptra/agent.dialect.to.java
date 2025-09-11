@@ -1,6 +1,7 @@
 package com.example.agent.rules;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Self-learning rule model (data-driven). */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -22,4 +23,15 @@ public class RuleV2 {
   public int support = 0;
 
   public RuleV2() {}
+
+  private static final ObjectMapper M = new ObjectMapper();
+
+  @Override
+  public String toString() {
+    try {
+      return M.writeValueAsString(this);
+    } catch (Exception e) {
+      return "RuleV2{id='" + id + "', type='" + type + "'}";
+    }
+  }
 }

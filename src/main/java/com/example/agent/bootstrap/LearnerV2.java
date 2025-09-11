@@ -6,6 +6,7 @@ import com.example.agent.rag.SimpleIndexer;
 import com.example.agent.rules.RuleJsonlCoercer;
 import com.example.agent.rules.RuleLoaderV2;
 import com.example.agent.rules.RuleV2;
+import com.example.agent.util.Log;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -33,6 +34,7 @@ public class LearnerV2 {
 
         if (processedCache.isProcessed(root, p)) continue;
 
+        Log.info("[LEARN] reading file " + p);
         String text = Files.readString(p);
         indexer.addDocument(text);
         String sample = sample(text, 1500);
@@ -40,20 +42,26 @@ public class LearnerV2 {
         // ----- First attempt: strict schema + examples
         String sys = strictSystemPrompt();
         String user = strictUserPrompt(sample);
-        String raw = llm.chat(List.of(
+        var msgs = List.of(
             Map.of("role","system","content", sys),
             Map.of("role","user","content", user)
-        ), 0.0);
+        );
+        Log.info("[LEARN] chat request: " + msgs);
+        String raw = llm.chat(msgs, 0.0);
+        Log.info("[LEARN] chat response: " + raw);
 
         List<RuleV2> rules = RuleJsonlCoercer.parse(raw);
 
         // ----- If nothing parsed, retry with correction and echo of invalid output
         if (rules.isEmpty()) {
           String retryUser = correctionPrompt(sample, raw);
-          String raw2 = llm.chat(List.of(
+          var retryMsgs = List.of(
               Map.of("role","system","content", sys),
               Map.of("role","user","content", retryUser)
-          ), 0.0);
+          );
+          Log.info("[LEARN] retry chat request: " + retryMsgs);
+          String raw2 = llm.chat(retryMsgs, 0.0);
+          Log.info("[LEARN] retry chat response: " + raw2);
           rules = RuleJsonlCoercer.parse(raw2);
 
           // dump if still empty
@@ -66,7 +74,11 @@ public class LearnerV2 {
           }
         }
 
-        for (RuleV2 r : rules) repo.addOrMerge(r);
+        Log.info("[LEARN] parsed rules count=" + rules.size());
+        for (RuleV2 r : rules) {
+          Log.info("[LEARN] rule: " + r);
+          repo.addOrMerge(r);
+        }
         added += rules.size();
         processedCache.markProcessed(root, p);
       }

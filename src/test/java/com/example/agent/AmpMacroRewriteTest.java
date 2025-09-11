@@ -33,8 +33,8 @@ public class AmpMacroRewriteTest {
         sc.irType = "Call";
         sc.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)\\s*;?\\s*$";
 
-        StmtEngine stmt = new StmtEngine();
-        IR.Node n = stmt.match(normalized, List.of(sc));
+        StmtEngine stmt = new StmtEngine(List.of(sc));
+        IR.Node n = stmt.match(normalized);
         assertTrue(n instanceof IR.Call, "Should parse as Call");
         assertEquals("msg", ((IR.Call) n).callee);
     }

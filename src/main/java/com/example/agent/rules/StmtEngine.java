@@ -18,15 +18,29 @@ public final class StmtEngine {
         }
     }
 
-    public IR.Node match(String line, List<RuleV2> stmtRules) {
-        List<Compiled> compiled = new ArrayList<>();
-        for (RuleV2 r : stmtRules) {
-            if (r.regex == null) continue;
-            try {
-                compiled.add(new Compiled(r));
-            } catch (Exception ignored) {
+    private List<Compiled> compiled = new ArrayList<>();
+
+    public StmtEngine() {}
+
+    public StmtEngine(List<RuleV2> stmtRules) {
+        refresh(stmtRules);
+    }
+
+    public void refresh(List<RuleV2> stmtRules) {
+        List<Compiled> c = new ArrayList<>();
+        if (stmtRules != null) {
+            for (RuleV2 r : stmtRules) {
+                if (r.regex == null) continue;
+                try {
+                    c.add(new Compiled(r));
+                } catch (Exception ignored) {
+                }
             }
         }
+        this.compiled = c;
+    }
+
+    public IR.Node match(String line) {
         for (Compiled cr : compiled) {
             Matcher m = cr.p.matcher(line);
             if (m.matches()) {

@@ -19,9 +19,11 @@ public class TranslatorAgent {
   private final IRToJava generator = new IRToJava();
   private final JavaVerifier verifier = new JavaVerifier();
   private final ImproverV2 improver;
+  private final StmtEngine stmtEngine;
 
   public TranslatorAgent(LlmProvider llm, SimpleIndexer indexer, RuleStore processed, RuleLoaderV2 rules){
     this.llm=llm; this.indexer=indexer; this.processed=processed; this.rules=rules; this.improver=new ImproverV2(llm, rules);
+    this.stmtEngine = new StmtEngine(rules.ofType("stmt"));
   }
 
   public String translate(String source) throws IOException {
@@ -31,7 +33,8 @@ public class TranslatorAgent {
     var seg = new SegmentEngine().segment(source, rules.ofType("segment"));
 
     // 2) Blocks + statements
-    IR ir = new BlockEngine().parse(seg, rules.ofType("block"), rules.ofType("stmt"));
+    stmtEngine.refresh(rules.ofType("stmt"));
+    IR ir = new BlockEngine().parse(seg, rules.ofType("block"), stmtEngine);
 
     // 3) Generate Java
     String className = "TranslatedProgram";

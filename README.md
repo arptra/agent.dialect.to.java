@@ -54,6 +54,8 @@ System.out.println(java);
 ./gradlew run --args="fix path/to/frag.dlx path/to/current.java path/to/feedback.txt"
 ```
 
+Для включения подробного логирования команды `learn` установите `log=true` в `gradle.properties`.
+
 ## Как это работает
 - `Learner` опрашивает GigaChat и собирает **правила** (regex+группы+шаблон Java) → `runtime/rules.jsonl`.
 - `DynamicDialectParser` поднимает правила и строит IR (Assign/Call/Decl/If/Loop/Unknown).

@@ -6,13 +6,6 @@ plugins {
 group = 'com.example'
 version = '0.2.0'
 
-java {
-    toolchain {
-        // Use the available JDK to compile the project
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -33,7 +26,7 @@ application {
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     def props = ['GIGACHAT_API_BASE','GIGACHAT_API_KEY','GIGACHAT_MODEL','LLM_PROVIDER',
-                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_CA_FILE']
+                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_CA_FILE','log']
     props.each { p ->
         if (project.hasProperty(p)) {
             systemProperty p, project.property(p)
@@ -43,7 +36,7 @@ tasks.withType(Test).configureEach {
 
 tasks.withType(JavaExec).configureEach {
     def props = ['GIGACHAT_API_BASE','GIGACHAT_API_KEY','GIGACHAT_MODEL','LLM_PROVIDER',
-                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_CA_FILE']
+                 'GIGACHAT_CERT_FILE','GIGACHAT_KEY_FILE','GIGACHAT_CA_FILE','log']
     props.each { p ->
         if (project.hasProperty(p)) {
             systemProperty p, project.property(p)

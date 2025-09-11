@@ -5,6 +5,7 @@ import com.example.agent.providers.LlmProvider;
 import com.example.agent.rag.SimpleIndexer;
 import com.example.agent.rules.RuleLoaderV2;
 import com.example.agent.rules.RuleV2;
+import com.example.agent.util.Log;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -32,14 +33,18 @@ public class LearnerV2 {
                     .forEach(p -> {
                         try {
                             if (processedCache.isProcessed(root, p)) return;
+                            Log.info("Opening file: " + p);
                             String text = Files.readString(p);
                             indexer.addDocument(text);
                             String sample = sample(text, 2000);
                             String prompt = buildPrompt(sample);
-                            String jsonl = llm.chat(List.of(
+                            var messages = List.of(
                                     Map.of("role", "system", "content", "Верни только JSONL RuleV2, по одному объекту на строку."),
                                     Map.of("role", "user", "content", prompt)
-                            ), 0.2);
+                            );
+                            Log.info("GigaChat request: " + messages);
+                            String jsonl = llm.chat(messages, 0.2);
+                            Log.info("GigaChat response: " + jsonl);
                             for (String line : jsonl.split("\r?\n")) {
                                 String s = line.trim();
                                 if (s.isEmpty()) continue;
@@ -48,6 +53,7 @@ public class LearnerV2 {
                                     if (r.type == null || r.type.isBlank()) r.type = "stmt";
                                     if (r.priority == 0) r.priority = defaultPriority(r.type);
                                     repo.addOrMerge(r);
+                                    Log.info("Rule formed: " + mapper.writeValueAsString(r));
                                 } catch (Exception ignored) {
                                 }
                             }

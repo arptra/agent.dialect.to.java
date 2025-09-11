@@ -1,0 +1,687 @@
+{
+  "segments": [
+    {
+      "id": "seg_semicolon",
+      "strategy": "regex_outside_quotes_parens",
+      "regex": ";",
+      "priority": 10
+    },
+    {
+      "id": "seg_keywords_keep",
+      "strategy": "regex_boundary_keep",
+      "regex": "(?i)\\b(?:ALL|AND|ANY|ASC|BEGIN|BFILE|BLOB|BOOLEAN|BY|CASE|CHAR|CHARACTER|CLASS|CLOB|COLLECTION|COLLECTIONS|COMMIT|CONNECT|CONST|COUNT|CONTINUE|CURSOR|DATE|DAY|DECLARE|DEFAULT|DELETE|DESC|DETERMINISTIC|DISTINCT|ELSE|ELSIF|ENTITY|END|END\\s+FUNCTION|END\\s+PROCEDURE|ESCAPE|EXISTS|EXIT|FALSE|FIRST|FOR|FUNCTION|GROUP|HAVING|ID|IF|IN|INFINITE|INIT|INDEX|INTEGER|INTERSECT|INTERVAL|INTO|IS|LAST|LIKE|LOCAL|LOCATE|LOCK|LONG|LOOP|MINUS|MONTH|MULTISET|NAN|NEXT|NOCOPY|NOCYCLE|NOT|NOWAIT|NULL|NUMBER|OF|ONE|OR|ORDER|OUT|PARENT|PARENTCLASS|PRAGMA|PRIOR|PROCEDURE|RAISE|RAW|RECORD|REF|REFERENCE|RETURN|RETURNS|REVERSE|ROLLBACK|ROWID|ROWTABLE|ROWTYPE|SAVEPOINT|SECOND|SELECT|SET|SIZE|START|STATE|STRING|SUBTYPE|TABLE|THEN|TIME|TIMESTAMP|TO|TRUE|TYPE|UNION|UPDATE|VALUES|VAR|VARCHAR|VARCHAR2|VARRAY|WAIT|WHEN|WHERE|WHILE|WITH|YEAR|ZONE)\\b",
+      "priority": 9
+    },
+    {
+      "id": "seg_order_by",
+      "strategy": "regex_boundary_keep",
+      "regex": "(?i)\\bORDER\\s+BY\\b",
+      "priority": 9
+    },
+    {
+      "id": "seg_brackets_keep",
+      "strategy": "regex_boundary_keep",
+      "regex": "\\[|\\]",
+      "priority": 8
+    },
+    {
+      "id": "seg_operators_keep",
+      "strategy": "regex_boundary_keep",
+      "regex": "(\\*{1,3}|\\+|-|/|%|\\^|<=|>=|!=|=|<|>)",
+      "priority": 8
+    }
+  ],
+  "blocks": [
+    {
+      "id": "blk_begin_end",
+      "irType": "Block",
+      "open": "^\\s*(?i:BEGIN)\\b",
+      "close": "(?i:END)\\b\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_if",
+      "irType": "If",
+      "open": "^\\s*(?i:IF)\\s+(.+?)\\s+(?i:THEN)\\b",
+      "middle": [
+        "(?i:ELSIF)\\s+(.+?)\\s+(?i:THEN)\\b",
+        "^\\s*(?i:ELSE)\\b"
+      ],
+      "close": "(?i:END)\\s+(?i:IF)\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_case",
+      "irType": "Case",
+      "open": "^\\s*(?i:CASE)\\b",
+      "middle": [
+        "^\\s*(?i:WHEN)\\b.+?(?i:THEN)\\b"
+      ],
+      "close": "(?i:END)\\s+(?i:CASE)\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_while",
+      "irType": "Loop",
+      "open": "^\\s*(?i:WHILE)\\s+(.+?)\\s+(?i:LOOP)\\b",
+      "close": "(?i:END)\\s+(?i:LOOP)\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_for_range",
+      "irType": "Loop",
+      "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s*\\.\\.\\s*(.+?)\\s+(?i:LOOP)\\b",
+      "close": "(?i:END)\\s+(?i:LOOP)\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_for_each",
+      "irType": "Loop",
+      "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s+(?i:LOOP)\\b",
+      "close": "(?i:END)\\s+(?i:LOOP)\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_begin_end",
+      "irType": "Block",
+      "open": "^\\s*(?i:BEGIN)\\s*$",
+      "close": "^\\s*(?i:END)\\s*;?\\s*$",
+      "priority": 50
+    },
+    {
+      "id": "blk_if",
+      "irType": "If",
+      "open": "^\\s*(?i:IF)\\s+(.+?)\\s+(?i:THEN)\\s*$",
+      "middle": [
+        "^\\s*(?i:ELSIF)\\s+(.+?)\\s+(?i:THEN)\\s*$",
+        "^\\s*(?i:ELSE)\\s*$"
+      ],
+      "close": "^\\s*(?i:END\\s+IF)\\s*;?\\s*$",
+      "priority": 50
+    },
+    {
+      "id": "blk_case",
+      "irType": "Case",
+      "open": "^\\s*(?i:CASE)\\b(.*)$",
+      "middle": [
+        "^\\s*(?i:WHEN)\\b.+?(?i:THEN)\\s*$"
+      ],
+      "close": "^\\s*(?i:END\\s+CASE)\\s*;?\\s*$",
+      "priority": 50
+    },
+    {
+      "id": "blk_while",
+      "irType": "Loop",
+      "open": "^\\s*(?i:WHILE)\\s+(.+?)\\s+(?i:LOOP)\\s*$",
+      "close": "^\\s*(?i:END\\s+LOOP)\\s*;?\\s*$",
+      "priority": 50
+    },
+    {
+      "id": "blk_for_range",
+      "irType": "Loop",
+      "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s*\\.\\.\\s*(.+?)\\s+(?i:LOOP)\\b",
+      "close": "(?i:END)\\s+(?i:LOOP)\\s*;?",
+      "priority": 50
+    },
+    {
+      "id": "blk_for_each",
+      "irType": "Loop",
+      "open": "^\\s*(?i:FOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IN)\\s+(.+?)\\s+(?i:LOOP)\\s*$",
+      "close": "^\\s*(?i:END\\s+LOOP)\\s*;?\\s*$",
+      "priority": 50
+    },
+    {
+      "id": "blk_type_record",
+      "irType": "TypeRecord",
+      "open": "^\\s*(?i:TYPE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IS)\\s+(?i:RECORD)\\s*\\(\\s*",
+      "close": "^\\s*\\)\\s*;\\s*$",
+      "priority": 55
+    },
+    {
+      "id": "blk_procedure",
+      "irType": "Procedure",
+      "open": "^\\s*(?i:PROCEDURE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)\\b",
+      "middle": [
+        "^\\s*(?i:BEGIN)\\b"
+      ],
+      "close": "(?i:END)\\s+(?i:PROCEDURE)\\b\\s*;?",
+      "priority": 58
+    },
+    {
+      "id": "blk_function",
+      "irType": "Function",
+      "open": "^\\s*(?i:FUNCTION)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)\\s+(?i:RETURNS)\\s+([A-Za-z0-9_<>\\[\\]\\s()]+)\\b",
+      "middle": [
+        "^\\s*(?i:BEGIN)\\b"
+      ],
+      "close": "(?i:END)\\s+(?i:FUNCTION)\\b\\s*;?",
+      "priority": 58
+    }
+  ],
+  "statements": [
+    {
+      "id": "stmt_decl_variable",
+      "irType": "Decl",
+      "regex": "^\\s*(?i:DECLARE)\\s+(?i:VARIABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z0-9_<>\\[\\]\\s]+?)(?:\\s+(?i:DEFAULT)\\s+(.+?))?\\s*;\\s*$",
+      "fields": [
+        "name",
+        "type",
+        "default"
+      ],
+      "priority": 22
+    },
+    {
+      "id": "stmt_decl_colon_syntax",
+      "irType": "Decl",
+      "regex": "^\\s*(?i:DECLARE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*([A-Za-z0-9_<>\\[\\]]+)(?:\\s+(?i:DEFAULT)\\s+(.+?))?\\s*;\\s*$",
+      "fields": [
+        "name",
+        "type",
+        "default"
+      ],
+      "priority": 21
+    },
+    {
+      "id": "stmt_type_alias",
+      "irType": "TypeAlias",
+      "regex": "^\\s*(?i:TYPE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IS)\\s+(.+?)\\s*;\\s*$",
+      "fields": [
+        "name",
+        "aliasedType"
+      ],
+      "priority": 21
+    },
+    {
+      "id": "stmt_record_field",
+      "irType": "RecordField",
+      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z0-9_<>\\[\\]\\s()]+)\\s*,?\\s*$",
+      "fields": [
+        "name",
+        "type"
+      ],
+      "priority": 20
+    },
+    {
+      "id": "stmt_assign_colon",
+      "irType": "Assign",
+      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*:=\\s*(.+);\\s*$",
+      "fields": [
+        "name",
+        "expr"
+      ],
+      "priority": 21
+    },
+    {
+      "id": "stmt_assign_equal",
+      "irType": "Assign",
+      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_\\.]*(?:\\s*(?:->|=>)\\s*[A-Za-z_][A-Za-z0-9_]*)?)\\s*=\\s*(.+);\\s*$",
+      "fields": [
+        "name",
+        "expr"
+      ],
+      "priority": 20
+    },
+    {
+      "id": "stmt_call",
+      "irType": "Call",
+      "regex": "^\\s*([A-Za-z_][A-Za-z0-9_]*)(?:\\s*::\\s*([A-Za-z_][A-Za-z0-9_]*))?\\s*\\((.*)\\)\\s*;?\\s*$",
+      "fields": [
+        "callee",
+        "ns",
+        "args"
+      ],
+      "listFields": [
+        "args"
+      ],
+      "priority": 20
+    },
+    {
+      "id": "stmt_txn",
+      "irType": "Call",
+      "regex": "^\\s*(?i:(COMMIT|ROLLBACK|SAVEPOINT))\\b(?:\\s+(?i:TO)\\s+([A-Za-z_][A-Za-z0-9_]*))?\\s*;?\\s*$",
+      "fields": [
+        "callee",
+        "arg"
+      ],
+      "priority": 20
+    },
+    {
+      "id": "stmt_cursor_decl",
+      "irType": "CursorDecl",
+      "regex": "^\\s*(?i:CURSOR)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:IS)\\s+(.+);\\s*$",
+      "fields": [
+        "name",
+        "query"
+      ],
+      "priority": 19
+    },
+    {
+      "id": "stmt_cursor_open",
+      "irType": "CursorOpen",
+      "regex": "^\\s*(?i:OPEN)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*;\\s*$",
+      "fields": [
+        "name"
+      ],
+      "priority": 19
+    },
+    {
+      "id": "stmt_cursor_fetch",
+      "irType": "CursorFetch",
+      "regex": "^\\s*(?i:FETCH)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(?i:INTO)\\s+(.+);\\s*$",
+      "fields": [
+        "name",
+        "into"
+      ],
+      "priority": 19
+    },
+    {
+      "id": "stmt_cursor_close",
+      "irType": "CursorClose",
+      "regex": "^\\s*(?i:CLOSE)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*;\\s*$",
+      "fields": [
+        "name"
+      ],
+      "priority": 19
+    },
+    {
+      "id": "stmt_sql_select",
+      "irType": "Sql",
+      "regex": "^\\s*(?i:SELECT)\\b.+;\\s*$",
+      "fields": [
+        "sql"
+      ],
+      "priority": 15
+    },
+    {
+      "id": "stmt_sql_insert",
+      "irType": "Sql",
+      "regex": "^\\s*(?i:INSERT)\\b.+;\\s*$",
+      "fields": [
+        "sql"
+      ],
+      "priority": 15
+    },
+    {
+      "id": "stmt_sql_update",
+      "irType": "Sql",
+      "regex": "^\\s*(?i:UPDATE)\\b.+;\\s*$",
+      "fields": [
+        "sql"
+      ],
+      "priority": 15
+    },
+    {
+      "id": "stmt_sql_delete",
+      "irType": "Sql",
+      "regex": "^\\s*(?i:DELETE)\\b.+;\\s*$",
+      "fields": [
+        "sql"
+      ],
+      "priority": 15
+    },
+    {
+      "id": "stmt_pragma",
+      "irType": "Pragma",
+      "regex": "^\\s*(?i:PRAGMA)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b(.*);\\s*$",
+      "fields": [
+        "name",
+        "args"
+      ],
+      "priority": 14
+    },
+    {
+      "id": "stmt_return",
+      "irType": "Return",
+      "regex": "^\\s*(?i:RETURN)\\b(?:\\s+(.+?))?\\s*;\\s*$",
+      "fields": [
+        "value"
+      ],
+      "priority": 14
+    },
+    {
+      "id": "stmt_exit",
+      "irType": "Exit",
+      "regex": "^\\s*(?i:EXIT)\\b(?:\\s+(?i:WHEN)\\s+(.+?))?\\s*;\\s*$",
+      "fields": [
+        "cond"
+      ],
+      "priority": 14
+    },
+    {
+      "id": "stmt_continue",
+      "irType": "Continue",
+      "regex": "^\\s*(?i:CONTINUE)\\b(?:\\s+(?i:WHEN)\\s+(.+?))?\\s*;\\s*$",
+      "fields": [
+        "cond"
+      ],
+      "priority": 14
+    },
+    {
+      "id": "stmt_section_label",
+      "irType": "Section",
+      "regex": "^\\s*(?i:PUBLIC|PRIVATE|VALIDATE|EXECUTE)\\s*:\\s*$",
+      "fields": [
+        "section"
+      ],
+      "priority": 12
+    }
+  ],
+  "rewrites": [
+    { "id": "rw_nl_after_begin_like",
+      "pattern": "(?i)\\b(BEGIN|LOOP)\\b\\s+",
+      "replace": "$1\n",
+      "priority": 9
+    },
+    { "id": "rw_nl_before_keywords",
+      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
+      "replace": "\n$1",
+      "priority": 9
+    },
+    { "id": "rw_nl_after_then",
+      "pattern": "(?i)\\bTHEN\\b",
+      "replace": "THEN\n",
+      "priority": 9
+    },
+    { "id": "rw_amp_macro_strict",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$1($2)",
+      "priority": 8
+    },
+    { "id": "rw_macro_anyprefix_safe",
+      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$2($3)",
+      "priority": 7
+    },
+    { "id": "rw_if_not_to_bang",
+      "pattern": "(?i)\\bIF\\s+NOT\\s+([^\\n;]+?)\\s+THEN\\b",
+      "replace": "IF !($1) THEN",
+      "priority": 7
+    },
+    { "id": "rw_nl_after_begin_like",
+      "pattern": "(?i)\\b(BEGIN|LOOP)\\b\\s+",
+      "replace": "$1\n",
+      "priority": 9
+    },
+    { "id": "rw_nl_before_keywords",
+      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
+      "replace": "\n$1",
+      "priority": 9
+    },
+    { "id": "rw_nl_after_then",
+      "pattern": "(?i)\\bTHEN\\b",
+      "replace": "THEN\n",
+      "priority": 9
+    },
+    { "id": "rw_amp_macro_strict",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$1($2)",
+      "priority": 8
+    },
+    { "id": "rw_macro_anyprefix_safe",
+      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$2($3)",
+      "priority": 7
+    },
+    { "id": "rw_nl_before_keywords",
+      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
+      "replace": "\n$1",
+      "priority": 9
+    },
+    { "id": "rw_nl_after_then",
+      "pattern": "(?i)\\bTHEN\\b",
+      "replace": "THEN\n",
+      "priority": 9
+    },
+    { "id": "rw_amp_macro_strict",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$1($2)",
+      "priority": 6
+    },
+    { "id": "rw_macro_anyprefix_safe",
+      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$2($3)",
+      "priority": 5
+    },
+    {
+      "id": "rw_nl_before_keywords",
+      "pattern": "(?i)\\b(BEGIN|IF|ELSIF|ELSE|CASE|WHEN|FOR|WHILE|END\\s+IF|END\\s+CASE|END\\s+LOOP|END\\s+PROCEDURE|END\\s+FUNCTION|END)\\b",
+      "replace": "\n$1",
+      "priority": 9
+    },
+    {
+      "id": "rw_nl_after_then",
+      "pattern": "(?i)\\bTHEN\\b",
+      "replace": "THEN\n",
+      "priority": 9
+    },
+    {
+      "id": "rw_macro_anyprefix",
+      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
+      "replace": "$2($3)",
+      "priority": 5
+    },
+    {
+      "id": "rw_ns_colons_many",
+      "pattern": "\\s*:{2,}\\s*",
+      "replace": ".",
+      "priority": 5
+    },
+    {
+      "id": "rw_ns_double_colon",
+      "pattern": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*::\\s*([A-Za-z_][A-Za-z0-9_]*)",
+      "replace": "$1.$2",
+      "priority": 5
+    },
+    {
+      "id": "rw_arrow",
+      "pattern": "(\\b[A-Za-z_][A-Za-z0-9_]*\\b)\\s*->\\s*([A-Za-z_][A-Za-z0-9_]*)",
+      "replace": "$1.$2",
+      "priority": 4
+    },
+    {
+      "id": "rw_arrow_lock",
+      "pattern": "(\\b[A-Za-z_][A-Za-z0-9_]*\\b)\\s*=>\\s*([A-Za-z_][A-Za-z0-9_]*)",
+      "replace": "$1.$2 /*lock*/",
+      "priority": 4
+    },
+    {
+      "id": "rw_logic_and",
+      "pattern": "(?i)\\bAND\\b",
+      "replace": "&&",
+      "priority": 3
+    },
+    {
+      "id": "rw_logic_or",
+      "pattern": "(?i)\\bOR\\b",
+      "replace": "||",
+      "priority": 3
+    },
+    {
+      "id": "rw_logic_not",
+      "pattern": "(?i)\\bNOT\\b",
+      "replace": "!",
+      "priority": 3
+    },
+    {
+      "id": "rw_pow",
+      "pattern": "([A-Za-z_][A-Za-z0-9_\\.\\]\\[]*|\\d+(?:\\.\\d+)?)\\s*\\^\\s*([A-Za-z_][A-Za-z0-9_\\.\\]\\[]*|\\d+(?:\\.\\d+)?)",
+      "replace": "Math.pow($1,$2)",
+      "priority": 2
+    },
+    {
+      "id": "rw_percent_mods",
+      "pattern": "(\\b[A-Za-z_][A-Za-z0-9_]*\\b)\\s*%\\s*(id|class|state|collection|parent|parentclass|entity|classparent|statename|classname|rowid|key|value|lock|delete|log|scn|ses|init|rowtype|rowtable|size|compare|attrs|arch)\\b",
+      "replace": "$1.$2",
+      "priority": 4
+    },
+    {
+      "id": "rw_amp_macro_strict",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$1($2)",
+      "priority": 6
+    },
+    {
+      "id": "rw_macro_anyprefix_safe",
+      "pattern": "([^\\w\\s])([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)",
+      "replace": "$2($3)",
+      "priority": 5
+    }
+  ],
+  "types": [
+    "NUMBER",
+    "INTEGER",
+    "BINARY_FLOAT",
+    "BINARY_DOUBLE",
+    "DATE",
+    "STRING",
+    "RAW",
+    "BOOLEAN",
+    "EXCEPTION",
+    "LONG",
+    "BFILE",
+    "BLOB",
+    "CLOB",
+    "ROWID",
+    "TIMESTAMP",
+    "INTERVAL",
+    "REFERENCE",
+    "COLLECTION",
+    "OBJECT",
+    "RECORD",
+    "TABLE",
+    "VARRAY",
+    "VARCHAR",
+    "VARCHAR2",
+    "CHAR",
+    "CHARACTER",
+    "DECIMAL"
+  ],
+  "keywords": [
+    "ALL",
+    "AND",
+    "ANY",
+    "ASC",
+    "BEGIN",
+    "BFILE",
+    "BLOB",
+    "BOOLEAN",
+    "BY",
+    "CASE",
+    "CHAR",
+    "CHARACTER",
+    "CLASS",
+    "CLOB",
+    "COLLECTION",
+    "COLLECTIONS",
+    "COMMIT",
+    "CONNECT",
+    "CONST",
+    "COUNT",
+    "CONTINUE",
+    "CURSOR",
+    "DATE",
+    "DAY",
+    "DECLARE",
+    "DEFAULT",
+    "DELETE",
+    "DESC",
+    "DETERMINISTIC",
+    "DISTINCT",
+    "ELSE",
+    "ELSIF",
+    "ENTITY",
+    "END",
+    "END FUNCTION",
+    "END PROCEDURE",
+    "ESCAPE",
+    "EXISTS",
+    "EXIT",
+    "FALSE",
+    "FIRST",
+    "FOR",
+    "FUNCTION",
+    "GROUP",
+    "HAVING",
+    "ID",
+    "IF",
+    "IN",
+    "INFINITE",
+    "INIT",
+    "INDEX",
+    "INTEGER",
+    "INTERSECT",
+    "INTERVAL",
+    "INTO",
+    "IS",
+    "LAST",
+    "LIKE",
+    "LOCAL",
+    "LOCATE",
+    "LOCK",
+    "LONG",
+    "LOOP",
+    "MINUS",
+    "MONTH",
+    "MULTISET",
+    "NAN",
+    "NEXT",
+    "NOCOPY",
+    "NOCYCLE",
+    "NOT",
+    "NOWAIT",
+    "NULL",
+    "NUMBER",
+    "OF",
+    "ONE",
+    "OR",
+    "ORDER",
+    "OUT",
+    "PARENT",
+    "PARENTCLASS",
+    "PRAGMA",
+    "PRIOR",
+    "PROCEDURE",
+    "RAISE",
+    "RAW",
+    "RECORD",
+    "REF",
+    "REFERENCE",
+    "RETURN",
+    "RETURNS",
+    "REVERSE",
+    "ROLLBACK",
+    "ROWID",
+    "ROWTABLE",
+    "ROWTYPE",
+    "SAVEPOINT",
+    "SECOND",
+    "SELECT",
+    "SET",
+    "SIZE",
+    "START",
+    "STATE",
+    "STRING",
+    "SUBTYPE",
+    "TABLE",
+    "THEN",
+    "TIME",
+    "TIMESTAMP",
+    "TO",
+    "TRUE",
+    "TYPE",
+    "UNION",
+    "UPDATE",
+    "VALUES",
+    "VAR",
+    "VARCHAR",
+    "VARCHAR2",
+    "VARRAY",
+    "WAIT",
+    "WHEN",
+    "WHERE",
+    "WHILE",
+    "WITH",
+    "YEAR",
+    "ZONE"
+  ]
+}

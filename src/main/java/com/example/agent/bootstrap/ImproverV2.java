@@ -19,13 +19,19 @@ public class ImproverV2 {
   }
 
   public void refine(String dialectSnippet, String javaResult, String diagnosticsOrFeedback) throws IOException {
-    String prompt = "На основе пары (диалект → Java) предложи улучшения или новые RuleV2 " +
-      "('segment'|'block'|'stmt'|'rewrite') в формате JSONL. " +
-      "Не дублируй существующие правила, улучшай устойчивость.\n\n" +
+    String prompt = "На основе пары (диалект → Java) предложи новые или улучшенные RuleV2.\n" +
+            "Не повторяй уже существующие правила (меняй id или улучшай regex)." +
       "Диалект:\n" + dialectSnippet + "\n\nJava:\n" + javaResult +
       "\n\nДиагностика/фидбек:\n" + diagnosticsOrFeedback + "\n\nТолько JSONL.";
     String jsonl = llm.chat(List.of(
-      Map.of("role","system","content","Возвращай только JSONL, один объект на строку."),
+      Map.of("role","system","content","Верни ТОЛЬКО JSONL RuleV2. Одна строка = один объект JSON.\n" +
+              "Разрешённые ключи: id,type,regex,strategy,irType,fields,listFields,open,middle,close,pattern,replace,priority\n" +
+              "Запрещены любые другие ключи (name, version и т.п.).\n" +
+              "Для type=stmt ОБЯЗАТЕЛЬНЫ irType и regex с ^ и $.\n" +
+              "Для type=block ОБЯЗАТЕЛЬНЫ open и close (оба с якорями), irType; middle опционален.\n" +
+              "Для type=segment ОБЯЗАТЕЛЬНЫ strategy и regex.\n" +
+              "Для type=rewrite ОБЯЗАТЕЛЬНЫ pattern и replace.\n" +
+              "6–12 правил, без дубликатов."),
       Map.of("role","user","content", prompt)
     ), 0.2);
     for (String line : jsonl.split("\r?\n")) {

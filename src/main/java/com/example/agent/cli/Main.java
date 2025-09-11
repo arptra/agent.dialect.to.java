@@ -1,9 +1,11 @@
 package com.example.agent.cli;
 
 import com.example.agent.api.TranslatorEngine;
+import com.example.agent.grammar.ManifestDrivenGrammarSeeder;
 
 import java.nio.file.Path;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class Main {
@@ -14,6 +16,13 @@ public class Main {
         }
         String cmd = args[0];
         switch (cmd) {
+            case "learn-spec" -> {
+                // Usage: learn-spec spec/plplus_syntax_manifest.json runtime
+                Path spec = Paths.get(args[1]);
+                Path runtime = args.length >= 3 ? Paths.get(args[2]) : Paths.get("runtime");
+                new ManifestDrivenGrammarSeeder(spec, runtime).seed();
+                System.exit(0);
+            }
             case "learn" -> {
                 Path repo = Path.of(args[1]);
                 String exts = args.length >= 3 ? args[2] : ".dlx,.dsl,.txt";

@@ -1,6 +1,18 @@
 {
   "segments": [
     {
+      "id": "seg_then",
+      "strategy": "regex_after",
+      "regex": "(?i:THEN)",
+      "priority": 30
+    },
+    {
+      "id": "seg_begin_else",
+      "strategy": "regex_keep",
+      "regex": "(?i:\\bBEGIN\\b|\\bELSE\\b)",
+      "priority": 20
+    },
+    {
       "id": "seg_semicolon",
       "strategy": "regex_outside_quotes_parens",
       "regex": ";|\\n",

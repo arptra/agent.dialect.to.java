@@ -3,15 +3,17 @@ package com.example.agent.cli;
 import com.example.agent.api.TranslatorEngine;
 import com.example.agent.grammar.ManifestDrivenGrammarSeeder;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("Usage:\n  learn <repoRoot> [exts=.dlx,.dsl,.txt] [runtime=runtime]\n  translate <file> [runtime=runtime]\n  fix <dialectFile> <javaFile> <feedback.txt> [runtime=runtime]\n");
+            System.out.println("Usage:\n  learn <repoRoot> [exts=.dlx,.dsl,.txt] [runtime=runtime]\n  translate <file> [runtime=runtime]\n  fix <dialectFile> <javaFile> <feedback.txt> [runtime=runtime]\n  collect <path>\n");
             return;
         }
         String cmd = args[0];
@@ -50,6 +52,24 @@ public class Main {
                 String feedback = Files.readString(feedbackFile);
                 String out = engine.fix(dialect, java, feedback);
                 System.out.println(out);
+            }
+            case "collect" -> {
+                Path srcRoot = Path.of(args[1]);
+                Path samplesDir = Path.of("samples");
+                Files.createDirectories(samplesDir);
+                try (var stream = Files.walk(srcRoot)) {
+                    stream.filter(p -> Files.isRegularFile(p) && p.toString().endsWith(".plp"))
+                          .forEach(p -> {
+                              Path dest = samplesDir.resolve(srcRoot.relativize(p));
+                              try {
+                                  Files.createDirectories(dest.getParent());
+                                  Files.copy(p, dest, StandardCopyOption.REPLACE_EXISTING);
+                              } catch (IOException e) {
+                                  throw new RuntimeException(e);
+                              }
+                          });
+                }
+                System.out.println("Collect OK");
             }
             default -> System.err.println("Unknown command: " + cmd);
         }

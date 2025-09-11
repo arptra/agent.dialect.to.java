@@ -52,6 +52,7 @@ System.out.println(java);
 ./gradlew run --args="learn /path/to/repo .dlx,.dsl,.txt"
 ./gradlew run --args="translate samples/example.dlx"
 ./gradlew run --args="fix path/to/frag.dlx path/to/current.java path/to/feedback.txt"
+./gradlew run --args="collect /path/to/plp/files"
 ```
 
 Для включения подробного логирования команды `learn` установите `log=true` в `gradle.properties`.

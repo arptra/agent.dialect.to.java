@@ -9,34 +9,57 @@ public class IRToJava {
         sb.append("public class ").append(className).append(" {\n");
         sb.append("  public static void main(String[] args) {\n");
         for (IR.Node n : ir.nodes) {
-            sb.append("    ").append(genStmt(n)).append("\n");
+            sb.append(genStmt(n, 1)).append("\n");
         }
         sb.append("  }\n");
         sb.append("}\n");
         return sb.toString();
     }
 
-    private String genStmt(IR.Node n) {
+    private String genStmt(IR.Node n, int depth) {
+        String indent = "    ".repeat(depth);
         if (n instanceof IR.Assign a) {
-            return "var " + a.name + " = " + sanitize(a.expr) + ";";
+            return indent + "var " + a.name + " = " + sanitize(a.expr) + ";";
         }
         if (n instanceof IR.Call c) {
             String args = String.join(", ", c.args);
-            return c.callee + "(" + args + ");";
+            return indent + c.callee + "(" + args + ");";
         }
         if (n instanceof IR.Decl d) {
-            return d.type + " " + d.name + ";";
+            return indent + d.type + " " + d.name + ";";
+        }
+        if (n instanceof IR.Block b) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(indent).append("{\n");
+            for (IR.Node child : b.body) {
+                sb.append(genStmt(child, depth + 1)).append("\n");
+            }
+            sb.append(indent).append("}");
+            return sb.toString();
         }
         if (n instanceof IR.If i) {
-            return "if (" + sanitize(i.cond) + ") { /* TODO then */ } else { /* TODO else */ }";
+            StringBuilder sb = new StringBuilder();
+            sb.append(indent).append("if (").append(sanitize(i.cond)).append(") {\n");
+            for (IR.Node child : i.thenBody) {
+                sb.append(genStmt(child, depth + 1)).append("\n");
+            }
+            sb.append(indent).append("}");
+            if (!i.elseBody.isEmpty()) {
+                sb.append(" else {\n");
+                for (IR.Node child : i.elseBody) {
+                    sb.append(genStmt(child, depth + 1)).append("\n");
+                }
+                sb.append(indent).append("}");
+            }
+            return sb.toString();
         }
         if (n instanceof IR.Loop l) {
-            return "// loop " + l.header + "\n    /* TODO convert loop body */";
+            return indent + "// loop " + l.header + "\n" + indent + "/* TODO convert loop body */";
         }
         if (n instanceof IR.UnknownNode u) {
-            return "/* UNKNOWN: " + escape(u.raw) + " */";
+            return indent + "/* UNKNOWN: " + escape(u.raw) + " */";
         }
-        return "/* TODO */";
+        return indent + "/* TODO */";
     }
 
     private String sanitize(String s) {

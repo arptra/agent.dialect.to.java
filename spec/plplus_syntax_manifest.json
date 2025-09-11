@@ -7,28 +7,16 @@
       "priority": 10
     },
     {
-      "id": "seg_keywords_keep",
-      "strategy": "regex_boundary_keep",
-      "regex": "(?i)\\b(?:ALL|AND|ANY|ASC|BEGIN|BFILE|BLOB|BOOLEAN|BY|CASE|CHAR|CHARACTER|CLASS|CLOB|COLLECTION|COLLECTIONS|COMMIT|CONNECT|CONST|COUNT|CONTINUE|CURSOR|DATE|DAY|DECLARE|DEFAULT|DELETE|DESC|DETERMINISTIC|DISTINCT|ELSE|ELSIF|ENTITY|END|END\\s+FUNCTION|END\\s+PROCEDURE|ESCAPE|EXISTS|EXIT|FALSE|FIRST|FOR|FUNCTION|GROUP|HAVING|ID|IF|IN|INFINITE|INIT|INDEX|INTEGER|INTERSECT|INTERVAL|INTO|IS|LAST|LIKE|LOCAL|LOCATE|LOCK|LONG|LOOP|MINUS|MONTH|MULTISET|NAN|NEXT|NOCOPY|NOCYCLE|NOT|NOWAIT|NULL|NUMBER|NVL|OF|ONE|OR|ORDER|OUT|PARENT|PARENTCLASS|PRAGMA|PRIOR|PROCEDURE|RAISE|RAW|RECORD|REF|REFERENCE|RETURN|RETURNS|REVERSE|ROLLBACK|ROWID|ROWTABLE|ROWTYPE|SAVEPOINT|SECOND|SELECT|SET|SIZE|START|STATE|STRING|SUBTYPE|TABLE|THEN|TIME|TIMESTAMP|TO|TRUE|TYPE|UNION|UPDATE|VALUES|VAR|VARCHAR|VARCHAR2|VARRAY|WAIT|WHEN|WHERE|WHILE|WITH|YEAR|ZONE)\\b",
+      "id": "seg_ctrl_keywords",
+      "strategy": "regex_keep",
+      "regex": "(?i)\\b(?:BEGIN|END\\s+IF|END\\s+LOOP|END\\s+CASE|END|ELSIF|ELSE)\\b",
       "priority": 9
     },
     {
-      "id": "seg_order_by",
-      "strategy": "regex_boundary_keep",
-      "regex": "(?i)\\bORDER\\s+BY\\b",
+      "id": "seg_then_after",
+      "strategy": "regex_after",
+      "regex": "(?i)\\bTHEN\\b",
       "priority": 9
-    },
-    {
-      "id": "seg_brackets_keep",
-      "strategy": "regex_boundary_keep",
-      "regex": "\\[|\\]",
-      "priority": 8
-    },
-    {
-      "id": "seg_operators_keep",
-      "strategy": "regex_boundary_keep",
-      "regex": "(\\*{1,3}|\\+|-|/|%|\\^|<=|>=|!=|:=|=|<|>)",
-      "priority": 8
     }
   ],
   "blocks": [

@@ -6,7 +6,6 @@ import com.example.agent.rag.SimpleIndexer;
 import com.example.agent.rules.RuleJsonlCoercer;
 import com.example.agent.rules.RuleLoaderV2;
 import com.example.agent.rules.RuleV2;
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;

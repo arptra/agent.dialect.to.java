@@ -2,20 +2,13 @@ package com.example.agent.rules;
 
 import java.util.List;
 
-/**
- * Applies rewrite rules to a source string. For simple regex-based rewrites
- * {@link String#replaceAll(String, String)} is used. Some rules, like
- * <code>rw_amp_macro_strict</code>, require balanced-parentheses handling
- * and are implemented via a custom parser.
- */
-
 public final class RewriteEngine {
   public String applyAll(String s, List<RuleV2> rewrite) {
     if (s == null) return null;
     String out = s;
     for (RuleV2 r : rewrite) {
       if ("rw_amp_macro_strict".equals(r.id)) {
-        out = rewriteAmpMacro(out);
+        out = rewriteAmpMacroStrict(out);
         continue;
       }
       if (r.pattern == null || r.replace == null) continue;
@@ -24,58 +17,43 @@ public final class RewriteEngine {
     return out;
   }
 
-  /**
-   * Rewrites occurrences of <code>&foo(...)</code> to <code>foo(...)</code>,
-   * supporting nested parentheses and quoted strings within the argument list.
-   */
-  private String rewriteAmpMacro(String s) {
-    if (s == null || s.indexOf('&') < 0) return s;
-    StringBuilder out = new StringBuilder();
+  private String rewriteAmpMacroStrict(String s) {
+    StringBuilder sb = new StringBuilder();
     int i = 0;
     while (i < s.length()) {
-      int amp = s.indexOf('&', i);
-      if (amp < 0) { out.append(s.substring(i)); break; }
-      out.append(s, i, amp);
-      int j = amp + 1;
-      if (j >= s.length() || !Character.isJavaIdentifierStart(s.charAt(j))) {
-        out.append('&');
-        i = j;
-        continue;
-      }
-      int k = j + 1;
-      while (k < s.length() && Character.isJavaIdentifierPart(s.charAt(k))) k++;
-      String id = s.substring(j, k);
-      int t = k;
-      while (t < s.length() && Character.isWhitespace(s.charAt(t))) t++;
-      if (t >= s.length() || s.charAt(t) != '(') {
-        out.append('&').append(id);
-        i = t;
-        continue;
-      }
-      int depth = 0;
-      boolean inString = false; char qc = 0;
-      int m = t;
-      for (; m < s.length(); m++) {
-        char c = s.charAt(m);
-        if (inString) {
-          if (c == qc) inString = false;
-          continue;
+      char c = s.charAt(i);
+      if (c == '&' && i + 1 < s.length() &&
+          (Character.isLetter(s.charAt(i + 1)) || s.charAt(i + 1) == '_')) {
+        int j = i + 1;
+        while (j < s.length() &&
+               (Character.isLetterOrDigit(s.charAt(j)) || s.charAt(j) == '_')) {
+          j++;
         }
-        if (c == '\'' || c == '"') { inString = true; qc = c; continue; }
-        if (c == '(') depth++;
-        else if (c == ')') {
-          depth--;
-          if (depth == 0) break;
+        int k = j;
+        while (k < s.length() && Character.isWhitespace(s.charAt(k))) k++;
+        if (k < s.length() && s.charAt(k) == '(') {
+          int depth = 0;
+          int m = k;
+          while (m < s.length()) {
+            char ch = s.charAt(m);
+            if (ch == '(') depth++;
+            else if (ch == ')') {
+              depth--;
+              if (depth == 0) break;
+            }
+            m++;
+          }
+          if (depth == 0) {
+            sb.append(s, i + 1, k); // name without '&' and spaces
+            sb.append(s, k, m + 1); // full arg list
+            i = m + 1;
+            continue;
+          }
         }
       }
-      if (depth != 0) { // unmatched
-        out.append(s.substring(amp));
-        break;
-      }
-      String args = s.substring(t + 1, m);
-      out.append(id).append('(').append(args).append(')');
-      i = m + 1;
+      sb.append(c);
+      i++;
     }
-    return out.toString();
+    return sb.toString();
   }
 }

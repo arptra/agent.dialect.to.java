@@ -7,12 +7,6 @@
       "priority": 10
     },
     {
-      "id": "seg_begin_else",
-      "strategy": "regex_after",
-      "regex": "(?i)\\bBEGIN\\b|\\bELSE\\b",
-      "priority": 9
-    },
-    {
       "id": "seg_keywords_keep",
       "strategy": "regex_boundary_keep",
       "regex": "(?i)\\b(?:ALL|AND|ANY|ASC|BEGIN|BFILE|BLOB|BOOLEAN|BY|CASE|CHAR|CHARACTER|CLASS|CLOB|COLLECTION|COLLECTIONS|COMMIT|CONNECT|CONST|COUNT|CONTINUE|CURSOR|DATE|DAY|DECLARE|DEFAULT|DELETE|DESC|DETERMINISTIC|DISTINCT|ELSE|ELSIF|ENTITY|END|END\\s+FUNCTION|END\\s+PROCEDURE|ESCAPE|EXISTS|EXIT|FALSE|FIRST|FOR|FUNCTION|GROUP|HAVING|ID|IF|IN|INFINITE|INIT|INDEX|INTEGER|INTERSECT|INTERVAL|INTO|IS|LAST|LIKE|LOCAL|LOCATE|LOCK|LONG|LOOP|MINUS|MONTH|MULTISET|NAN|NEXT|NOCOPY|NOCYCLE|NOT|NOWAIT|NULL|NUMBER|OF|ONE|OR|ORDER|OUT|PARENT|PARENTCLASS|PRAGMA|PRIOR|PROCEDURE|RAISE|RAW|RECORD|REF|REFERENCE|RETURN|RETURNS|REVERSE|ROLLBACK|ROWID|ROWTABLE|ROWTYPE|SAVEPOINT|SECOND|SELECT|SET|SIZE|START|STATE|STRING|SUBTYPE|TABLE|THEN|TIME|TIMESTAMP|TO|TRUE|TYPE|UNION|UPDATE|VALUES|VAR|VARCHAR|VARCHAR2|VARRAY|WAIT|WHEN|WHERE|WHILE|WITH|YEAR|ZONE)\\b",
@@ -34,12 +28,6 @@
       "id": "seg_operators_keep",
       "strategy": "regex_boundary_keep",
       "regex": "(\\*{1,3}|\\+|-|/|%|\\^|<=|>=|!=|=|<|>)",
-      "priority": 8
-    },
-    {
-      "id": "seg_begin_else",
-      "strategy": "regex_after",
-      "regex": "(?i)\\b(?:BEGIN|ELSE)\\b",
       "priority": 8
     }
   ],
@@ -395,8 +383,7 @@
       "priority": 9
     },
     { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
-      "replace": "$1($2)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
       "priority": 8
     },
     { "id": "rw_macro_anyprefix_safe",
@@ -425,8 +412,7 @@
       "priority": 9
     },
     { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
-      "replace": "$1($2)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
       "priority": 8
     },
     { "id": "rw_macro_anyprefix_safe",
@@ -445,8 +431,7 @@
       "priority": 9
     },
     { "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
-      "replace": "$1($2)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
       "priority": 6
     },
     { "id": "rw_macro_anyprefix_safe",
@@ -528,8 +513,7 @@
     },
     {
       "id": "rw_amp_macro_strict",
-      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)",
-      "replace": "$1($2)",
+      "pattern": "&([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
       "priority": 6
     },
     {

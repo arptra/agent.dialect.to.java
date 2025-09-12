@@ -99,12 +99,34 @@ public final class BlockEngine {
     void switchToElseLike(){ this.elseLike = true; }
     List<IR.Node> current(){ return elseLike ? elseBody : thenBody; }
     IR.Node finalizeNode() {
+      var cls = node.getClass();
       try {
-        var cls = node.getClass();
-        try { var thenF = cls.getField("thenBody"); thenF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
-        try { var elseF = cls.getField("elseBody"); elseF.set(node, elseBody); } catch (NoSuchFieldException ignore){}
-        try { var bodyF = cls.getField("body"); bodyF.set(node, thenBody); } catch (NoSuchFieldException ignore){}
-      } catch (Throwable ignored) {}
+        var thenF = cls.getField("thenBody");
+        @SuppressWarnings("unchecked")
+        var list = (List<IR.Node>) thenF.get(node);
+        list.addAll(thenBody);
+      } catch (NoSuchFieldException ignore) {
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+      try {
+        var elseF = cls.getField("elseBody");
+        @SuppressWarnings("unchecked")
+        var list = (List<IR.Node>) elseF.get(node);
+        list.addAll(elseBody);
+      } catch (NoSuchFieldException ignore) {
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+      try {
+        var bodyF = cls.getField("body");
+        @SuppressWarnings("unchecked")
+        var list = (List<IR.Node>) bodyF.get(node);
+        list.addAll(thenBody);
+      } catch (NoSuchFieldException ignore) {
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
       return node;
     }
   }

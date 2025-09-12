@@ -6,6 +6,8 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
+import static java.util.Locale.ROOT;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -58,6 +60,25 @@ public class RuleLoaderV2 {
     }
     Files.move(tmp, rulesFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     System.out.println("[SAVE] wrote " + rules.size() + " rules to " + rulesFile.toAbsolutePath());
+  }
+
+  public static class KeywordBoundary {
+    public final String open;
+    public final String close;
+    public KeywordBoundary(String open, String close) {
+      this.open = open == null ? null : open.toUpperCase(ROOT);
+      this.close = close == null ? null : close.toUpperCase(ROOT);
+    }
+  }
+
+  public List<KeywordBoundary> keywordBoundaries() {
+    List<KeywordBoundary> out = new ArrayList<>();
+    for (RuleV2 r : rules) {
+      if ("boundary".equalsIgnoreCase(r.type)) {
+        out.add(new KeywordBoundary(r.open, r.close));
+      }
+    }
+    return out;
   }
 
   private void load() throws IOException {

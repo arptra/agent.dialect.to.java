@@ -44,7 +44,17 @@ public class ManifestDrivenGrammarSeeder {
             add(r, dedup, rules);
         }
 
-        // 2) blocks
+        // 2) keyword boundaries
+        for (var kb : spec.withArray("boundaries")) {
+            RuleV2 r = new RuleV2();
+            r.id = kb.path("id").asText();
+            r.type = "boundary";
+            r.open = kb.path("open").asText();
+            r.close = kb.path("close").asText();
+            add(r, dedup, rules);
+        }
+
+        // 3) blocks
         for (var blk : spec.withArray("blocks")) {
             RuleV2 r = new RuleV2();
             r.id = blk.path("id").asText();
@@ -61,7 +71,7 @@ public class ManifestDrivenGrammarSeeder {
             add(r, dedup, rules);
         }
 
-        // 3) statements
+        // 4) statements
         for (var st : spec.withArray("statements")) {
             RuleV2 r = new RuleV2();
             r.id = st.path("id").asText();
@@ -82,7 +92,7 @@ public class ManifestDrivenGrammarSeeder {
             add(r, dedup, rules);
         }
 
-        // 4) rewrites
+        // 5) rewrites
         for (var rw : spec.withArray("rewrites")) {
             RuleV2 r = new RuleV2();
             r.id = rw.path("id").asText();

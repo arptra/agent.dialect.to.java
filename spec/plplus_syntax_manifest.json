@@ -37,6 +37,12 @@
       "priority": 8
     }
   ],
+  "boundaries": [
+    { "id": "kw_begin_end", "open": "BEGIN", "close": "END" },
+    { "id": "kw_if", "open": "IF", "close": "END IF" },
+    { "id": "kw_case", "open": "CASE", "close": "END CASE" },
+    { "id": "kw_loop", "open": "LOOP", "close": "END LOOP" }
+  ],
   "blocks": [
     {
       "id": "blk_begin_end",

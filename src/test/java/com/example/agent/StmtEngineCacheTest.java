@@ -22,21 +22,28 @@ public class StmtEngineCacheTest {
         call.id = "call";
         call.type = "stmt";
         call.irType = "Call";
-        call.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)\\s*;?\\s*$";
+        call.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)(?:\\s*(?:\\.|::)\\s*([A-Za-z_][A-Za-z0-9_]*))?\\s*\\((.*)\\)\\s*;?\\s*$";
 
         StmtEngine engine = new StmtEngine(List.of(assign, call));
 
         IR.Node n1 = engine.match("X := 1;");
         assertTrue(n1 instanceof IR.Assign);
-        IR.Node n2 = engine.match("foo(bar);");
+        IR.Node n2 = engine.match("createLog(true);");
         assertTrue(n2 instanceof IR.Call);
+        assertEquals("createLog", ((IR.Call) n2).callee);
+        assertNull(((IR.Call) n2).ns);
+        IR.Node n3 = engine.match("logger.createLog(true);");
+        assertTrue(n3 instanceof IR.Call);
+        IR.Call c3 = (IR.Call) n3;
+        assertEquals("createLog", c3.callee);
+        assertEquals("logger", c3.ns);
         assertFalse(n1 instanceof IR.UnknownNode);
         assertFalse(n2 instanceof IR.UnknownNode);
 
         engine.refresh(List.of(call));
         IR.Node afterRefresh = engine.match("X := 1;");
         assertTrue(afterRefresh instanceof IR.UnknownNode);
-        IR.Node callAgain = engine.match("foo(bar);");
+        IR.Node callAgain = engine.match("createLog(true);");
         assertTrue(callAgain instanceof IR.Call);
     }
 }

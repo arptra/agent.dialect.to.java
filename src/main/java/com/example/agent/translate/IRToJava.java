@@ -31,7 +31,8 @@ public class IRToJava {
         if (n instanceof IR.Call c) {
             if ("msg".equals(c.callee)) needMsg = true;
             String args = String.join(", ", c.args);
-            return ind + c.callee + "(" + args + ");";
+            String prefix = (c.ns != null && !c.ns.isBlank()) ? c.ns + "." : "";
+            return ind + prefix + c.callee + "(" + args + ");";
         }
         if (n instanceof IR.Decl d) {
             return ind + d.type + " " + d.name + ";";

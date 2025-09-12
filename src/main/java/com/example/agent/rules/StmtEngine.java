@@ -68,6 +68,17 @@ public final class StmtEngine {
                     args[i] = val;
                 }
             }
+            if ("Call".equals(r.irType) && args.length == 3) {
+                Object first = args[0];
+                Object second = args[1];
+                if (second == null || String.valueOf(second).isBlank()) {
+                    args[0] = first;
+                    args[1] = null;
+                } else {
+                    args[0] = second;
+                    args[1] = first;
+                }
+            }
             return (IR.Node) ctor.newInstance(args);
         } catch (Throwable t) {
             return new IR.UnknownNode(m.group(0));

@@ -91,8 +91,8 @@ public class Learner {
         return "Дан фрагмент неизвестного диалекта. Выведи несколько правил распознавания конструкций (присваивание, вызов, объявление, условие, цикл) " +
                 "в формате JSONL. Каждая строка — JSON-объект со строгими полями: " +
                 "{id, irType, regex, fields:[...], listFields:[...] (опционально), javaTemplate (опционально)}. " +
-                "irType должен совпадать с IR-нодой: Assign(name,expr), Call(callee,args), Decl(name,type), If(cond), Loop(header). " +
-                "fields — порядок аргументов конструктора (например Assign → [\"name\",\"expr\"], Call → [\"callee\",\"args\"]). " +
+                "irType должен совпадать с IR-нодой: Assign(name,expr), Call(callee,ns,args), Decl(name,type), If(cond), Loop(header). " +
+                "fields — порядок аргументов конструктора (например Assign → [\"name\",\"expr\"], Call → [\"callee\",\"ns\",\"args\"]). " +
                 "Если поле — список аргументов (CSV), добавь его имя в listFields (например для Call: [\"args\"]).\n\n" +
                 "Пример (не копируй буквально):\n" +
                 "{\"id\":\"assign1\",\"irType\":\"Assign\",\"regex\":\"^\\\\s*([A-Za-z_][A-Za-z0-9_]*)\\\\s*:=\\\\s*(.+);\\\\s*$\",\"fields\":[\"name\",\"expr\"]}\n" +

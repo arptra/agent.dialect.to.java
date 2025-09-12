@@ -32,19 +32,20 @@ public class IRToJavaTest {
 
         IR.If cond = new IR.If("i == 0");
         IR.Block thenBlock = new IR.Block();
-        thenBlock.body.add(new IR.Call("msg", java.util.List.of("\"zero\"")));
+        thenBlock.body.add(new IR.Call("msg", null, java.util.List.of("\"zero\"")));
         cond.thenBody.add(thenBlock);
         IR.Block elseBlock = new IR.Block();
-        elseBlock.body.add(new IR.Call("msg", java.util.List.of("\"non-zero\"")));
+        elseBlock.body.add(new IR.Call("msg", null, java.util.List.of("\"non-zero\"")));
         cond.elseBody.add(elseBlock);
         root.body.add(cond);
 
         IR.Loop loop = new IR.Loop("i < 2");
         IR.Block loopBody = new IR.Block();
         loopBody.body.add(new IR.Assign("i", "i + 1"));
-        loopBody.body.add(new IR.Call("msg", java.util.List.of("\"iter\"")));
+        loopBody.body.add(new IR.Call("msg", null, java.util.List.of("\"iter\"")));
         loop.body.add(loopBody);
         root.body.add(loop);
+        root.body.add(new IR.Call("createLog", "logger", java.util.List.of("true")));
 
         ir.nodes.add(root);
 
@@ -55,6 +56,7 @@ public class IRToJavaTest {
         assertTrue(java.contains("if (i == 0)"));
         assertTrue(java.contains("while (i < 2)"));
         assertTrue(java.contains("msg("));
+        assertTrue(java.contains("logger.createLog(true);"));
     }
 }
 

@@ -22,8 +22,8 @@ public class TranslatorAgentTest {
         call.id = "call";
         call.type = "stmt";
         call.irType = "Call";
-        call.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)\\s*;\\s*$";
-        call.fields = new String[]{"callee", "args"};
+        call.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)(?:\\s*(?:\\.|::)\\s*([A-Za-z_][A-Za-z0-9_]*))?\\s*\\((.*)\\)\\s*;\\s*$";
+        call.fields = new String[]{"ns", "callee", "args"};
         call.listFields = new String[]{"args"};
         loader.addOrMerge(call);
 

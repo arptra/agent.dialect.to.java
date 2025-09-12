@@ -51,11 +51,14 @@ public class IRToJava {
             for (IR.Node child : i.thenBody) {
                 sb.append(genStmt(child, indent + 1)).append("\n");
             }
-            sb.append(ind).append("} else {\n");
-            for (IR.Node child : i.elseBody) {
-                sb.append(genStmt(child, indent + 1)).append("\n");
-            }
             sb.append(ind).append("}");
+            if (!i.elseBody.isEmpty()) {
+                sb.append(" else {\n");
+                for (IR.Node child : i.elseBody) {
+                    sb.append(genStmt(child, indent + 1)).append("\n");
+                }
+                sb.append(ind).append("}");
+            }
             return sb.toString();
         }
         if (n instanceof IR.Loop l) {
@@ -78,17 +81,23 @@ public class IRToJava {
             return sb.toString();
         }
         if (n instanceof IR.TryCatch tc) {
+            if (tc.tryBody.isEmpty() && tc.catchBody.isEmpty()) {
+                return ind + "/* TODO: missing try-catch logic */";
+            }
             StringBuilder sb = new StringBuilder();
             sb.append(ind).append("try {\n");
             for (IR.Node child : tc.tryBody) {
                 sb.append(genStmt(child, indent + 1)).append("\n");
             }
-            String ex = (tc.exceptionName != null && !tc.exceptionName.isBlank()) ? tc.exceptionName + " e" : "Exception e";
-            sb.append(ind).append("} catch (" + ex + ") {\n");
-            for (IR.Node child : tc.catchBody) {
-                sb.append(genStmt(child, indent + 1)).append("\n");
-            }
             sb.append(ind).append("}");
+            if (!tc.catchBody.isEmpty()) {
+                String ex = (tc.exceptionName != null && !tc.exceptionName.isBlank()) ? tc.exceptionName + " e" : "Exception e";
+                sb.append(" catch (" + ex + ") {\n");
+                for (IR.Node child : tc.catchBody) {
+                    sb.append(genStmt(child, indent + 1)).append("\n");
+                }
+                sb.append(ind).append("}");
+            }
             return sb.toString();
         }
         if (n instanceof IR.UnknownNode u) {

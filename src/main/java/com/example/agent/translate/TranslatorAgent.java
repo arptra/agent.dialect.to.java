@@ -30,7 +30,7 @@ public class TranslatorAgent {
     indexer.addDocument(source);
 
     // 1) Segment
-    var seg = new SegmentEngine().segment(source, rules.ofType("segment"));
+    var seg = new SegmentEngine().segment(source, rules.ofType("segment"), rules.keywordBoundaries());
 
     // 2) Blocks + statements
     stmtEngine.refresh(rules.ofType("stmt"));

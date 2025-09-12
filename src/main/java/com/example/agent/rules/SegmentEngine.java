@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  */
 public final class SegmentEngine {
 
-    public List<String> segment(String src, List<RuleV2> segmentRules) {
+    public List<String> segment(String src, List<RuleV2> segmentRules, List<RuleLoaderV2.KeywordBoundary> boundaries) {
         List<String> tokens = new ArrayList<>();
         tokens.add(src);
         for (RuleV2 r : segmentRules) {
@@ -33,34 +33,47 @@ public final class SegmentEngine {
             }
             tokens = next;
         }
-        tokens = splitKeywordBoundaries(tokens);
+        tokens = splitKeywordBoundaries(tokens, boundaries);
         if (tokens.isEmpty()) return splitOutsideQuotesAndParens(src, Pattern.compile(";"));
         return tokens;
     }
 
-    private List<String> splitKeywordBoundaries(List<String> tokens) {
+    private List<String> splitKeywordBoundaries(List<String> tokens, List<RuleLoaderV2.KeywordBoundary> boundaries) {
+        Set<String> openSplit = new HashSet<>();
+        Set<String> closers = new HashSet<>();
+        for (RuleLoaderV2.KeywordBoundary kb : boundaries) {
+            if (kb.close != null) closers.add(kb.close);
+            if (kb.open != null && kb.close != null && "END".equalsIgnoreCase(kb.close)) {
+                openSplit.add(kb.open);
+            }
+        }
         List<String> out = new ArrayList<>();
-        Pattern simple = Pattern.compile("^(?i)(BEGIN|END|ELSE)\\b\\s+(.+)$");
-        Pattern cond = Pattern.compile("^(?i)(IF|ELSIF)\\b\\s+(.+?)\\s+(?i:THEN)\\b(.*)$", Pattern.DOTALL);
         for (String t : tokens) {
             String trimmed = t.trim();
-            Matcher cm = cond.matcher(trimmed);
-            if (cm.matches()) {
-                String kw = cm.group(1).toUpperCase(Locale.ROOT);
-                String condText = cm.group(2).trim();
-                String after = cm.group(3).trim();
-                out.add(kw + " " + condText + " THEN");
-                if (!after.isEmpty()) out.add(after);
-                continue;
+            String upper = trimmed.toUpperCase(Locale.ROOT);
+            boolean handled = false;
+
+            for (String kw : openSplit) {
+                if (upper.startsWith(kw + " ")) {
+                    out.add(kw);
+                    String rest = trimmed.substring(kw.length()).trim();
+                    if (!rest.isEmpty()) out.add(rest);
+                    handled = true;
+                    break;
+                }
             }
-            Matcher sm = simple.matcher(trimmed);
-            if (sm.matches()) {
-                out.add(sm.group(1).toUpperCase(Locale.ROOT));
-                String rest = sm.group(2).trim();
-                if (!rest.isEmpty()) out.add(rest);
-            } else {
-                out.add(trimmed);
+            if (handled) continue;
+
+            for (String kw : closers) {
+                if (upper.startsWith(kw + " ")) {
+                    out.add(kw);
+                    String rest = trimmed.substring(kw.length()).trim();
+                    if (!rest.isEmpty()) out.add(rest);
+                    handled = true;
+                    break;
+                }
             }
+            if (!handled) out.add(trimmed);
         }
         return out;
     }

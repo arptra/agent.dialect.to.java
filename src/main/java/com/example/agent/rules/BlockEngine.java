@@ -28,9 +28,10 @@ public final class BlockEngine {
     var stack = new ArrayDeque<Frame>();
     List<IR.Node> current = ir.nodes;
 
-    Deque<String> queue = new ArrayDeque<>(tokens);
-    while (!queue.isEmpty()) {
-      String t = queue.removeFirst();
+    List<String> stream = new ArrayList<>(tokens);
+    ListIterator<String> it = stream.listIterator();
+    while (it.hasNext()) {
+      String t = it.next();
       boolean handled = false;
 
       // CLOSE
@@ -48,8 +49,8 @@ public final class BlockEngine {
             if (mm.lookingAt()) {
               top.switchToElseLike();
               current = top.current();
-              String rest = t.substring(mm.end()).trim();
-              if (!rest.isEmpty()) queue.addFirst(rest);
+              String rem = t.substring(mm.end()).trim();
+              if (!rem.isEmpty()) it.add(rem);
               handled = true; break;
             }
           }
@@ -65,8 +66,8 @@ public final class BlockEngine {
             Frame f = new Frame(b, instantiateIR(b.r, m));
             stack.push(f);
             current = f.current();
-            String rest = t.substring(m.end()).trim();
-            if (!rest.isEmpty()) queue.addFirst(rest);
+            String rem = t.substring(m.end()).trim();
+            if (!rem.isEmpty()) it.add(rem);
             handled = true; break;
           }
         }

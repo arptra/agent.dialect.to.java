@@ -50,7 +50,10 @@ public final class BlockEngine {
               top.switchToElseLike();
               current = top.current();
               String rem = t.substring(mm.end()).trim();
-              if (!rem.isEmpty()) it.add(rem);
+              if (!rem.isEmpty()) {
+                it.add(rem);
+                it.previous();
+              }
               handled = true; break;
             }
           }
@@ -67,7 +70,10 @@ public final class BlockEngine {
             stack.push(f);
             current = f.current();
             String rem = t.substring(m.end()).trim();
-            if (!rem.isEmpty()) it.add(rem);
+            if (!rem.isEmpty()) {
+              it.add(rem);
+              it.previous();
+            }
             handled = true; break;
           }
         }

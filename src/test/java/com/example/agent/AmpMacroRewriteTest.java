@@ -31,11 +31,13 @@ public class AmpMacroRewriteTest {
         sc.id = "stmt_call";
         sc.type = "stmt";
         sc.irType = "Call";
-        sc.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\((.*)\\)\\s*;?\\s*$";
+        sc.regex = "^\\s*([A-Za-z_][A-Za-z0-9_]*)(?:\\s*(?:\\.|::)\\s*([A-Za-z_][A-Za-z0-9_]*))?\\s*\\((.*)\\)\\s*;?\\s*$";
 
         StmtEngine stmt = new StmtEngine(List.of(sc));
         IR.Node n = stmt.match(normalized);
         assertTrue(n instanceof IR.Call, "Should parse as Call");
-        assertEquals("msg", ((IR.Call) n).callee);
+        IR.Call call = (IR.Call) n;
+        assertEquals("msg", call.callee);
+        assertNull(call.ns);
     }
 }

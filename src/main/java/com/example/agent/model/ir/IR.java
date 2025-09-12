@@ -16,9 +16,12 @@ public class IR {
 
     public static final class Call implements Node {
         public final String callee;
+        public final String ns;
         public final List<String> args;
-        public Call(String callee, List<String> args) {
-            this.callee = callee; this.args = args;
+        public Call(String callee, String ns, List<String> args) {
+            this.callee = callee;
+            this.ns = ns;
+            this.args = args;
         }
     }
 

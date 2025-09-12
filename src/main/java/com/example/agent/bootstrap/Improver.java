@@ -25,7 +25,7 @@ public class Improver {
     public void refineRules(String dialectSnippet, String javaResult, String diagnosticsOrFeedback) throws IOException {
         String prompt = "На основе пары (диалект -> Java) предложи улучшения правил распознавания в формате JSONL. " +
                 "Строгие поля: id, irType, regex, fields:[...], listFields:[...] (опц.), javaTemplate (опц.). " +
-                "Используй IR-ноды: Assign(name,expr), Call(callee,args), Decl(name,type), If(cond), Loop(header). " +
+                "Используй IR-ноды: Assign(name,expr), Call(callee,ns,args), Decl(name,type), If(cond), Loop(header). " +
                 "Не дублируй существующие правила, обобщи, стабилизируй regex.\n\n" +
                 "Диалект:\n" + dialectSnippet + "\n\nJava:\n" + javaResult + "\n\nЗамечания/диагностика:\n" + diagnosticsOrFeedback +
                 "\n\nВерни только JSONL.";

@@ -28,7 +28,7 @@ public class TranslatorAgentMsgTest {
         rule.id = "amp_call";
         rule.type = "stmt";
         rule.irType = "Call";
-        rule.regex = "^&([A-Za-z_][A-Za-z0-9_]*)\\(([^)]*)\\)$";
+        rule.regex = "^&([A-Za-z_][A-Za-z0-9_]*)(?:\\s*(?:\\.|::)\\s*([A-Za-z_][A-Za-z0-9_]*))?\\(([^)]*)\\)$";
         loader.addOrMerge(rule);
 
         LlmProvider llm = new LlmProvider() {

@@ -116,7 +116,16 @@ public final class BlockEngine {
       Constructor<?> ctor = clazz.getDeclaredConstructors()[0];
       Class<?>[] ps = ctor.getParameterTypes();
       Object[] args = new Object[ps.length];
-      for (int i=0;i<ps.length;i++) args[i] = safe(m, i+1);
+      for (int i=0;i<ps.length;i++) {
+        String val = safe(m, i+1);
+        if (List.class.isAssignableFrom(ps[i])) {
+          List<String> out = new ArrayList<>();
+          if (val != null && !val.isBlank()) for (String a : val.split(",")) out.add(a.trim());
+          args[i] = out;
+        } else {
+          args[i] = val;
+        }
+      }
       return (IR.Node) ctor.newInstance(args);
     } catch (Throwable t) {
       return new IR.UnknownNode(m.group(0));

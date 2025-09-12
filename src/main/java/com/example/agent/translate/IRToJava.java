@@ -100,6 +100,14 @@ public class IRToJava {
             }
             return sb.toString();
         }
+        if (n instanceof IR.Pragma p) {
+            if ("error".equalsIgnoreCase(p.name) && !p.args.isEmpty()) {
+                String msg = p.args.get(0);
+                return ind + "throw new RuntimeException(" + sanitize(msg) + ");";
+            }
+            String args = String.join(", ", p.args);
+            return ind + "/* PRAGMA " + p.name + "(" + args + ") */";
+        }
         if (n instanceof IR.UnknownNode u) {
             return ind + "/* UNKNOWN: " + escape(u.raw) + " */";
         }

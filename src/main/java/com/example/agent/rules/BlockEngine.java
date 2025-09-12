@@ -28,7 +28,10 @@ public final class BlockEngine {
     var stack = new ArrayDeque<Frame>();
     List<IR.Node> current = ir.nodes;
 
-    for (String t : tokens) {
+    List<String> stream = new ArrayList<>(tokens);
+    ListIterator<String> it = stream.listIterator();
+    while (it.hasNext()) {
+      String t = it.next();
       boolean handled = false;
 
       // CLOSE
@@ -42,9 +45,12 @@ public final class BlockEngine {
         } else {
           // MIDDLE
           for (Pattern mid : top.b.middle) {
-            if (mid.matcher(t).matches()) {
+            Matcher mm = mid.matcher(t);
+            if (mm.lookingAt()) {
               top.switchToElseLike();
               current = top.current();
+              String rem = t.substring(mm.end()).trim();
+              if (!rem.isEmpty()) it.add(rem);
               handled = true; break;
             }
           }
@@ -56,10 +62,12 @@ public final class BlockEngine {
       for (CompBlock b : blocks) {
         if (b.open != null) {
           Matcher m = b.open.matcher(t);
-          if (m.matches()) {
+          if (m.lookingAt()) {
             Frame f = new Frame(b, instantiateIR(b.r, m));
             stack.push(f);
             current = f.current();
+            String rem = t.substring(m.end()).trim();
+            if (!rem.isEmpty()) it.add(rem);
             handled = true; break;
           }
         }
